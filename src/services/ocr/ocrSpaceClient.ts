@@ -4,22 +4,22 @@ import { OCR_SPACE_API_ENDPOINT } from '@/src/constants/app';
 import type { OCRResult } from './types';
 
 interface OCRSpaceResponse {
-  ParsedResults?: Array<{
+  ParsedResults?: {
     ParsedText: string;
     TextOverlay?: {
-      Lines?: Array<{
+      Lines?: {
         LineText: string;
-        Words?: Array<{
+        Words?: {
           WordText: string;
           WordConf: number;
-        }>;
-      }>;
+        }[];
+      }[];
     };
     FileParseExitCode: number;
     ErrorMessage?: string | string[];
     ErrorDetails?: string;
     Confidence?: number;
-  }>;
+  }[];
   OCRExitCode: number;
   ErrorMessage?: string | string[];
   ErrorDetails?: string;

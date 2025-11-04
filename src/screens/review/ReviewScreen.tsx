@@ -18,7 +18,7 @@ import { DEFAULT_CATEGORIES } from '@/src/constants/categories';
 import { useReceipts } from '@/src/hooks/useReceipts';
 import { useReceiptActions } from '@/src/state/useReceiptActions';
 import { colors, spacing, typography } from '@/src/theme';
-import { formatCurrency, formatDate, parseCurrency, toISODate } from '@/src/utils/format';
+import { formatDate, parseCurrency, toISODate } from '@/src/utils/format';
 import type { ExpenseCategoryKey, LineItem, ReceiptWithItems } from '@/src/types';
 
 const toEditableDate = (iso: string | null) => {

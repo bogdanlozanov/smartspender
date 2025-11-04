@@ -23,9 +23,10 @@ interface CategorizeResult {
 const guessCategory = (description: string): { category: ExpenseCategoryKey; confidence: number } => {
   const normalized = description.toLowerCase();
 
-  for (const [category, patterns] of Object.entries(KEYWORDS) as Array<
-    [ExpenseCategoryKey, RegExp[]]
-  >) {
+  for (const [category, patterns] of Object.entries(KEYWORDS) as [
+    ExpenseCategoryKey,
+    RegExp[]
+  ][]) {
     for (const pattern of patterns) {
       if (pattern.test(normalized)) {
         return { category, confidence: 0.8 };
