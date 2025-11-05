@@ -15,12 +15,11 @@ import { useLocalSearchParams, useRouter } from 'expo-router';
 import { AppButton } from '@/src/components/AppButton';
 import { Card } from '@/src/components/Card';
 import { ReceiptAnalysisCard } from '@/src/components/ReceiptAnalysisCard';
-import { DEFAULT_CATEGORIES } from '@/src/constants/categories';
 import { useReceipts } from '@/src/hooks/useReceipts';
 import { useReceiptActions } from '@/src/state/useReceiptActions';
 import { colors, spacing, typography } from '@/src/theme';
 import { formatDate, parseCurrency, toISODate } from '@/src/utils/format';
-import type { ExpenseCategoryKey, LineItem, ReceiptWithItems } from '@/src/types';
+import type { LineItem, ReceiptWithItems } from '@/src/types';
 
 const toEditableDate = (iso: string | null) => {
   if (!iso) return '';
@@ -41,7 +40,6 @@ export const ReviewScreen = () => {
   const [subtotal, setSubtotal] = useState(receipt?.subtotal ? String(receipt.subtotal) : '');
   const [tax, setTax] = useState(receipt?.tax ? String(receipt.tax) : '');
   const [total, setTotal] = useState(receipt?.total ? String(receipt.total) : '');
-  const [category, setCategory] = useState<ExpenseCategoryKey>(receipt?.categoryGuess ?? 'other');
   const [lineItems, setLineItems] = useState<LineItem[]>(
     receipt?.lineItems.map((item) => ({ ...item })) ?? [],
   );
@@ -53,7 +51,6 @@ export const ReviewScreen = () => {
       setSubtotal(receipt.subtotal ? receipt.subtotal.toString() : '');
       setTax(receipt.tax ? receipt.tax.toString() : '');
       setTotal(receipt.total ? receipt.total.toString() : '');
-      setCategory(receipt.categoryGuess ?? 'other');
       setLineItems(receipt.lineItems.map((item) => ({ ...item })));
     }
   }, [receipt]);
@@ -82,15 +79,15 @@ export const ReviewScreen = () => {
         subtotal: parseCurrency(subtotal),
         tax: parseCurrency(tax),
         total: parseCurrency(total) ?? receipt.total,
-        categoryGuess: category,
         status: 'done',
         updatedAt: new Date().toISOString(),
         lineItems: lineItems.map((item) => ({
           ...item,
           description: item.description.trim(),
+          quantity: item.quantity ?? null,
+          unit: item.unit ?? null,
+          unitPrice: item.unitPrice ?? null,
           total: item.total,
-          unitPrice: item.unitPrice,
-          categoryGuess: item.categoryGuess ?? category,
         })),
       };
 
@@ -195,36 +192,47 @@ export const ReviewScreen = () => {
                   placeholder="Item description"
                   placeholderTextColor={colors.textMuted}
                 />
-                <TextInput
-                  style={[styles.input, styles.itemAmount]}
-                  value={item.total !== null && item.total !== undefined ? String(item.total) : ''}
-                  keyboardType="decimal-pad"
-                  onChangeText={(value) => {
-                    const amount = parseCurrency(value);
-                    updateItem(item.id, { total: amount, unitPrice: amount });
-                  }}
-                />
+                <View style={styles.itemMetaRow}>
+                  <TextInput
+                    style={[styles.input, styles.itemMetaInput]}
+                    value={item.quantity != null ? String(item.quantity) : ''}
+                    placeholder="Qty"
+                    placeholderTextColor={colors.textMuted}
+                    keyboardType="decimal-pad"
+                    onChangeText={(value) => {
+                      const parsed = value ? Number.parseFloat(value.replace(',', '.')) : null;
+                      updateItem(item.id, {
+                        quantity: parsed !== null && Number.isFinite(parsed) ? parsed : null,
+                      });
+                    }}
+                  />
+                  <TextInput
+                    style={[styles.input, styles.itemMetaInput]}
+                    value={item.unit ?? ''}
+                    placeholder="Unit"
+                    placeholderTextColor={colors.textMuted}
+                    onChangeText={(value) => updateItem(item.id, { unit: value || null })}
+                  />
+                  <TextInput
+                    style={[styles.input, styles.itemMetaInput]}
+                    value={item.unitPrice != null ? String(item.unitPrice) : ''}
+                    placeholder="Unit price"
+                    placeholderTextColor={colors.textMuted}
+                    keyboardType="decimal-pad"
+                    onChangeText={(value) => updateItem(item.id, { unitPrice: parseCurrency(value) })}
+                  />
+                  <TextInput
+                    style={[styles.input, styles.itemMetaInput, styles.itemMetaInputEnd]}
+                    value={item.total != null ? String(item.total) : ''}
+                    placeholder="Line total"
+                    placeholderTextColor={colors.textMuted}
+                    keyboardType="decimal-pad"
+                    onChangeText={(value) => updateItem(item.id, { total: parseCurrency(value) })}
+                  />
+                </View>
               </View>
             ))
           )}
-        </Card>
-
-        <Card padding="lg">
-          <Text style={styles.sectionTitle}>Category</Text>
-          <View style={styles.categoryGrid}>
-            {DEFAULT_CATEGORIES.map((option) => (
-              <Text
-                key={option.id}
-                style={[
-                  styles.categoryOption,
-                  category === option.id && styles.categoryOptionActive,
-                ]}
-                onPress={() => setCategory(option.id)}
-              >
-                {option.name}
-              </Text>
-            ))}
-          </View>
         </Card>
 
         <View style={styles.actions}>
@@ -304,28 +312,17 @@ const styles = StyleSheet.create({
   itemDescription: {
     marginBottom: spacing.sm,
   },
-  itemAmount: {
-    width: '50%',
-  },
-  categoryGrid: {
+  itemMetaRow: {
     flexDirection: 'row',
-    flexWrap: 'wrap',
-    marginTop: spacing.sm,
-  },
-  categoryOption: {
-    marginRight: spacing.sm,
+    justifyContent: 'space-between',
     marginBottom: spacing.sm,
-    paddingHorizontal: spacing.md,
-    paddingVertical: spacing.xs,
-    borderRadius: spacing.lg,
-    backgroundColor: colors.surfaceAlt,
-    color: colors.text,
-    borderWidth: 1,
-    borderColor: colors.surfaceAlt,
   },
-  categoryOptionActive: {
-    backgroundColor: colors.primary,
-    color: '#0F1A2A',
+  itemMetaInput: {
+    flex: 1,
+    marginRight: spacing.sm,
+  },
+  itemMetaInputEnd: {
+    marginRight: 0,
   },
   actions: {
     marginTop: spacing.xl,

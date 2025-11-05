@@ -20,6 +20,7 @@ export const ReceiptAnalysisCard = ({ analysis }: Props) => {
   return (
     <Card padding="lg" style={styles.card}>
       <Text style={styles.heading}>AI summary</Text>
+      {analysis.model && <Text style={styles.model}>Model · {analysis.model}</Text>}
       <View style={styles.row}>
         <View style={styles.metaBlock}>
           <Text style={styles.label}>Merchant</Text>
@@ -54,35 +55,20 @@ export const ReceiptAnalysisCard = ({ analysis }: Props) => {
                     : ''}
                 </Text>
               )}
-              {typeof item.discount === 'number' && item.discount !== 0 && (
-                <Text style={styles.itemDiscount}>
-                  Discount {formatCurrency(item.discount ?? null, analysis.currency)}
-                </Text>
-              )}
             </View>
             <Text style={styles.itemTotal}>{formatCurrency(item.total, analysis.currency)}</Text>
           </View>
         ))
       )}
 
-      {(analysis.subtotal !== undefined || analysis.discountsTotal !== undefined) && (
+      {analysis.subtotal !== undefined && (
         <View style={styles.summarySection}>
-          {analysis.subtotal !== undefined && (
-            <View style={styles.summaryRow}>
-              <Text style={styles.summaryLabel}>Subtotal</Text>
-              <Text style={styles.summaryValue}>
-                {formatCurrency(analysis.subtotal, analysis.currency)}
-              </Text>
-            </View>
-          )}
-          {analysis.discountsTotal !== undefined && (
-            <View style={styles.summaryRow}>
-              <Text style={styles.summaryLabel}>Discounts</Text>
-              <Text style={[styles.summaryValue, styles.discountValue]}>
-                {formatCurrency(analysis.discountsTotal, analysis.currency)}
-              </Text>
-            </View>
-          )}
+          <View style={styles.summaryRow}>
+            <Text style={styles.summaryLabel}>Subtotal</Text>
+            <Text style={styles.summaryValue}>
+              {formatCurrency(analysis.subtotal, analysis.currency)}
+            </Text>
+          </View>
         </View>
       )}
 
@@ -103,6 +89,11 @@ const styles = StyleSheet.create({
     fontWeight: '700',
     color: colors.text,
     marginBottom: spacing.lg,
+  },
+  model: {
+    color: colors.textMuted,
+    fontSize: typography.caption,
+    marginBottom: spacing.md,
   },
   row: {
     flexDirection: 'row',
@@ -157,11 +148,6 @@ const styles = StyleSheet.create({
     fontSize: typography.caption,
     marginTop: spacing.xs,
   },
-  itemDiscount: {
-    color: colors.accent,
-    fontSize: typography.caption,
-    marginTop: spacing.xs,
-  },
   itemTotal: {
     color: colors.text,
     fontWeight: '700',
@@ -187,9 +173,6 @@ const styles = StyleSheet.create({
   summaryValue: {
     color: colors.text,
     fontWeight: '600',
-  },
-  discountValue: {
-    color: colors.accent,
   },
   summaryFooter: {
     marginTop: spacing.md,

@@ -1,6 +1,5 @@
 import { createContext, useContext, useEffect, useMemo, useReducer } from 'react';
 
-import { DEFAULT_CATEGORIES } from '@/src/constants/categories';
 import { loadAllReceipts } from '@/src/storage/receiptsStorage';
 
 import { receiptsReducer, initialState } from './receiptReducer';
@@ -26,7 +25,6 @@ export const ReceiptsProvider = ({ children }: Props) => {
       try {
         const receipts = await loadAllReceipts();
         dispatch({ type: 'INITIALIZE', payload: { receipts } });
-        dispatch({ type: 'SET_CATEGORIES', payload: { categories: DEFAULT_CATEGORIES } });
       } catch (error) {
         console.error('Failed to load receipts', error);
         dispatch({

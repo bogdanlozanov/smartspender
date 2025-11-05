@@ -10,7 +10,6 @@ const indexReceipts = (receipts: ReceiptWithItems[]) =>
 export const initialState: ReceiptsState = {
   receipts: {},
   jobs: {},
-  categories: [],
   initialized: false,
   loading: false,
 };
@@ -28,12 +27,6 @@ export const receiptsReducer = (
         initialized: true,
         loading: false,
         error: undefined,
-      };
-    }
-    case 'SET_CATEGORIES': {
-      return {
-        ...state,
-        categories: action.payload.categories,
       };
     }
     case 'ADD_RECEIPT': {

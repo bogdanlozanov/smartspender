@@ -7,7 +7,6 @@ export interface ReceiptAnalysisItem {
   qty?: number;
   unit?: 'x' | 'kg' | 'g' | 'l' | 'ml' | 'other';
   unitPrice?: number;
-  discount?: number;
   total: number;
 }
 
@@ -17,7 +16,6 @@ export interface ReceiptAnalysis {
   currency: CurrencyCode;
   items: ReceiptAnalysisItem[];
   subtotal?: number;
-  discountsTotal?: number;
   total: number;
   model?: string;
 }
@@ -29,29 +27,7 @@ export interface LineItem {
   quantity: number | null;
   unit: ReceiptAnalysisItem['unit'] | null;
   unitPrice: number | null;
-  discount: number | null;
   total: number | null;
-  categoryGuess: ExpenseCategoryKey | null;
-}
-
-export type ExpenseCategoryKey =
-  | 'groceries'
-  | 'dining'
-  | 'transport'
-  | 'utilities'
-  | 'health'
-  | 'entertainment'
-  | 'shopping'
-  | 'travel'
-  | 'education'
-  | 'home'
-  | 'other';
-
-export interface ExpenseCategory {
-  id: ExpenseCategoryKey;
-  name: string;
-  icon: string;
-  parentId?: ExpenseCategoryKey | null;
 }
 
 export interface Receipt {
@@ -63,7 +39,6 @@ export interface Receipt {
   tax: number | null;
   total: number | null;
   currency: CurrencyCode;
-  categoryGuess: ExpenseCategoryKey | null;
   imageUri: string;
   providerMeta: Record<string, unknown> | null;
   analysis: ReceiptAnalysis | null;

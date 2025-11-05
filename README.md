@@ -9,7 +9,6 @@ SmartSpender is a mobile-first receipt scanner built with Expo + React Native. C
 - OpenAI GPT-4o Mini analysis for merchant, totals, and line items.
 - Extract merchant, date, totals, line items, and guess categories.
 - Review & edit receipts, view history, delete unwanted entries.
-- Export filtered receipts to CSV and share via the native share sheet.
 - All data (metadata + images) stored locally with `AsyncStorage` and `expo-file-system`.
 
 ## Quick Start
@@ -42,7 +41,7 @@ export EXPO_PUBLIC_OPENAI_MODEL=gpt-4o-mini # Optional override (defaults to gpt
 - `app/` — Expo Router screens.
 - `src/constants/` — currencies, categories, pipeline steps.
 - `src/state/` — reducer, context provider, and actions for receipts and jobs.
-- `src/services/` — OpenAI receipt analysis, categorisation, CSV export.
+- `src/services/` — OpenAI receipt analysis and categorisation.
 - `src/pipeline/` — orchestrates preprocessing, AI analysis, and persistence.
 - `src/storage/` — AsyncStorage + FileSystem helpers for receipts and images.
 - `src/screens/` — UI modules for home, processing, review, history, export.

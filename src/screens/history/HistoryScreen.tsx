@@ -2,9 +2,7 @@ import { useMemo, useState } from 'react';
 import { ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
 import { useRouter } from 'expo-router';
 
-import { AppButton } from '@/src/components/AppButton';
 import { ReceiptListItem } from '@/src/components/ReceiptListItem';
-import { DEFAULT_CATEGORIES } from '@/src/constants/categories';
 import { useReceipts } from '@/src/hooks/useReceipts';
 import { colors, spacing, typography } from '@/src/theme';
 
@@ -12,7 +10,6 @@ export const HistoryScreen = () => {
   const { receipts } = useReceipts();
   const router = useRouter();
   const [search, setSearch] = useState('');
-  const [category, setCategory] = useState<string | null>(null);
 
   const filtered = useMemo(() => {
     return receipts.filter((receipt) => {
@@ -21,11 +18,9 @@ export const HistoryScreen = () => {
         (receipt.merchant ?? '').toLowerCase().includes(search.toLowerCase()) ||
         receipt.lineItems.some((item) => item.description.toLowerCase().includes(search.toLowerCase()));
 
-      const matchesCategory = !category || receipt.categoryGuess === category;
-
-      return matchesSearch && matchesCategory;
+      return matchesSearch;
     });
-  }, [receipts, search, category]);
+  }, [receipts, search]);
 
   return (
     <ScrollView contentContainerStyle={styles.container}>
@@ -39,24 +34,6 @@ export const HistoryScreen = () => {
         value={search}
         onChangeText={setSearch}
       />
-
-      <View style={styles.categoryRow}>
-        <Text
-          style={[styles.categoryChip, category === null && styles.categoryChipActive]}
-          onPress={() => setCategory(null)}
-        >
-          All
-        </Text>
-        {DEFAULT_CATEGORIES.map((option) => (
-          <Text
-            key={option.id}
-            style={[styles.categoryChip, category === option.id && styles.categoryChipActive]}
-            onPress={() => setCategory(option.id)}
-          >
-            {option.name}
-          </Text>
-        ))}
-      </View>
 
       <View style={styles.list}>
         {filtered.length === 0 ? (
@@ -73,7 +50,6 @@ export const HistoryScreen = () => {
         )}
       </View>
 
-      <AppButton label="Export CSV" onPress={() => router.push('/export')} />
     </ScrollView>
   );
 };
@@ -103,26 +79,6 @@ const styles = StyleSheet.create({
     borderColor: colors.border,
     color: colors.text,
     marginBottom: spacing.lg,
-  },
-  categoryRow: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    marginBottom: spacing.xl,
-  },
-  categoryChip: {
-    marginRight: spacing.sm,
-    marginBottom: spacing.sm,
-    paddingHorizontal: spacing.md,
-    paddingVertical: spacing.xs,
-    borderRadius: spacing.lg,
-    backgroundColor: colors.surfaceAlt,
-    color: colors.text,
-    borderWidth: 1,
-    borderColor: colors.surfaceAlt,
-  },
-  categoryChipActive: {
-    backgroundColor: colors.primary,
-    color: '#0F1A2A',
   },
   list: {
     marginBottom: spacing.xl,

@@ -26,7 +26,6 @@ export default function RootLayout() {
             <Stack.Screen name="review/[id]" options={{ title: 'Review Receipt' }} />
             <Stack.Screen name="history/index" options={{ title: 'History' }} />
             <Stack.Screen name="history/[id]" options={{ title: 'Receipt Detail' }} />
-            <Stack.Screen name="export" options={{ title: 'Export' }} />
           </Stack>
         </ReceiptsProvider>
       </SafeAreaProvider>

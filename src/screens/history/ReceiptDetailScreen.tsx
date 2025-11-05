@@ -6,7 +6,6 @@ import { AppButton } from '@/src/components/AppButton';
 import { Card } from '@/src/components/Card';
 import { ReceiptAnalysisCard } from '@/src/components/ReceiptAnalysisCard';
 import { StatusBadge } from '@/src/components/StatusBadge';
-import { DEFAULT_CATEGORIES } from '@/src/constants/categories';
 import { useReceipts } from '@/src/hooks/useReceipts';
 import { useReceiptActions } from '@/src/state/useReceiptActions';
 import { colors, spacing, typography } from '@/src/theme';
@@ -29,8 +28,6 @@ export const ReceiptDetailScreen = () => {
       </View>
     );
   }
-
-  const category = DEFAULT_CATEGORIES.find((item) => item.id === receipt.categoryGuess);
 
   const handleDelete = () => {
     Alert.alert('Delete receipt', 'Are you sure you want to remove this receipt?', [
@@ -59,7 +56,6 @@ export const ReceiptDetailScreen = () => {
           <StatusBadge status={receipt.status} />
         </View>
         <Text style={styles.total}>{formatCurrency(receipt.total)}</Text>
-        {category && <Text style={styles.category}>Category: {category.name}</Text>}
       </Card>
 
       <ReceiptAnalysisCard analysis={receipt.analysis} />
@@ -80,16 +76,6 @@ export const ReceiptDetailScreen = () => {
                     {item.unitPrice ? formatCurrency(item.unitPrice) : ''}
                   </Text>
                 )}
-                {typeof item.discount === 'number' && item.discount !== 0 && (
-                  <Text style={styles.itemDiscount}>Discount {formatCurrency(item.discount)}</Text>
-                )}
-                {item.categoryGuess && (
-                  <Text style={styles.itemCategory}>
-                    Category:{' '}
-                    {DEFAULT_CATEGORIES.find((cat) => cat.id === item.categoryGuess)?.name ??
-                      item.categoryGuess}
-                  </Text>
-                )}
               </View>
               <Text style={styles.itemAmount}>{formatCurrency(item.total)}</Text>
             </View>
@@ -103,14 +89,6 @@ export const ReceiptDetailScreen = () => {
           <Text style={styles.summaryLabel}>Subtotal</Text>
           <Text style={styles.summaryValue}>{formatCurrency(receipt.subtotal)}</Text>
         </View>
-        {receipt.analysis?.discountsTotal !== undefined && (
-          <View style={styles.summaryRow}>
-            <Text style={styles.summaryLabel}>Discounts</Text>
-            <Text style={[styles.summaryValue, styles.summaryDiscount]}>
-              {formatCurrency(receipt.analysis.discountsTotal)}
-            </Text>
-          </View>
-        )}
         <View style={styles.summaryRow}>
           <Text style={styles.summaryLabel}>Total</Text>
           <Text style={styles.summaryValue}>{formatCurrency(receipt.total)}</Text>
@@ -159,10 +137,6 @@ const styles = StyleSheet.create({
     fontWeight: '700',
     color: colors.primary,
   },
-  category: {
-    marginTop: spacing.sm,
-    color: colors.textMuted,
-  },
   sectionTitle: {
     fontSize: typography.subheading,
     fontWeight: '700',
@@ -197,15 +171,6 @@ const styles = StyleSheet.create({
     fontSize: typography.caption,
     marginTop: spacing.xs,
   },
-  itemDiscount: {
-    color: colors.accent,
-    fontSize: typography.caption,
-    marginTop: spacing.xs,
-  },
-  itemCategory: {
-    color: colors.textMuted,
-    fontSize: typography.caption,
-  },
   itemAmount: {
     color: colors.text,
     fontWeight: '600',
@@ -221,9 +186,6 @@ const styles = StyleSheet.create({
   summaryValue: {
     color: colors.text,
     fontWeight: '600',
-  },
-  summaryDiscount: {
-    color: colors.accent,
   },
   actions: {
     marginTop: spacing.xl,

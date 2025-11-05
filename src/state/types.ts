@@ -1,13 +1,8 @@
-import type {
-  ExpenseCategory,
-  ReceiptJob,
-  ReceiptWithItems,
-} from '@/src/types';
+import type { ReceiptJob, ReceiptWithItems } from '@/src/types';
 
 export interface ReceiptsState {
   receipts: Record<string, ReceiptWithItems>;
   jobs: Record<string, ReceiptJob>;
-  categories: ExpenseCategory[];
   initialized: boolean;
   loading: boolean;
   error?: string;
@@ -15,7 +10,6 @@ export interface ReceiptsState {
 
 export type ReceiptsAction =
   | { type: 'INITIALIZE'; payload: { receipts: ReceiptWithItems[] } }
-  | { type: 'SET_CATEGORIES'; payload: { categories: ExpenseCategory[] } }
   | { type: 'ADD_RECEIPT'; payload: { receipt: ReceiptWithItems } }
   | {
       type: 'UPDATE_RECEIPT';

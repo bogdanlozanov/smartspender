@@ -1,6 +1,5 @@
 import { PIPELINE_STEPS } from '@/src/constants/pipeline';
 import { analyzeReceipt } from '@/src/services/analyzeReceipt';
-import { categorizeReceipt } from '@/src/services/categorizer';
 import { deleteImage, saveImage } from '@/src/storage';
 import type { ReceiptAnalysis, ReceiptJobError, ReceiptJobResult, ReceiptStatus, ReceiptWithItems } from '@/src/types';
 import { generateId } from '@/src/utils/id';
@@ -34,7 +33,6 @@ const createReceiptSkeleton = (id: string, imageUri: string): ReceiptWithItems =
     tax: null,
     total: null,
     currency: 'BGN',
-    categoryGuess: null,
     imageUri,
     providerMeta: null,
     analysis: null,
@@ -81,14 +79,12 @@ export const processReceipt = async ({
       quantity: item.qty ?? null,
       unit: item.unit ?? null,
       unitPrice: item.unitPrice ?? null,
-      discount: item.discount ?? null,
       total: item.total ?? null,
-      categoryGuess: null,
     }));
 
     emitProgress('categorize', onProgress);
-    const { items, receiptCategory } = categorizeReceipt(lineItems);
 
+    const items = lineItems;
     const subtotal = analysis.subtotal ?? items.reduce((acc, item) => acc + (item.total ?? 0), 0);
     const total = analysis.total ?? subtotal;
     const parsedDate = analysis.date ? new Date(analysis.date) : null;
@@ -113,7 +109,6 @@ export const processReceipt = async ({
       tax: null,
       total,
       status,
-      categoryGuess: receiptCategory,
       lineItems: items,
       providerMeta: {
         provider: 'openai',

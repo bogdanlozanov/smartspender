@@ -1,4 +1,4 @@
-import { useState, useCallback } from 'react';
+import { useMemo, useState, useCallback } from 'react';
 import { ActivityIndicator, Alert, ScrollView, StyleSheet, Text, View } from 'react-native';
 import * as ImagePicker from 'expo-image-picker';
 import { useRouter } from 'expo-router';
@@ -6,7 +6,6 @@ import { useRouter } from 'expo-router';
 import { AppButton } from '@/src/components/AppButton';
 import { Card } from '@/src/components/Card';
 import { ReceiptListItem } from '@/src/components/ReceiptListItem';
-import { DEFAULT_CATEGORIES } from '@/src/constants/categories';
 import { useReceipts } from '@/src/hooks/useReceipts';
 import { useReceiptProcessor } from '@/src/pipeline/useReceiptProcessor';
 import { colors, spacing, typography } from '@/src/theme';
@@ -152,17 +151,6 @@ export const HomeScreen = () => {
           ))
         )}
       </Card>
-
-      <Card padding="lg" style={styles.card}>
-        <Text style={styles.sectionTitle}>Categories</Text>
-        <View style={styles.categories}>
-          {DEFAULT_CATEGORIES.map((category) => (
-            <View key={category.id} style={styles.categoryPill}>
-              <Text style={styles.categoryLabel}>{category.name}</Text>
-            </View>
-          ))}
-        </View>
-      </Card>
     </ScrollView>
   );
 };
@@ -238,24 +226,5 @@ const styles = StyleSheet.create({
   },
   listItem: {
     marginBottom: spacing.md,
-  },
-  categories: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    marginTop: spacing.sm,
-  },
-  categoryPill: {
-    backgroundColor: colors.surfaceAlt,
-    borderRadius: spacing.lg,
-    paddingHorizontal: spacing.md,
-    paddingVertical: spacing.xs,
-    borderWidth: 1,
-    borderColor: colors.border,
-    marginRight: spacing.sm,
-    marginBottom: spacing.sm,
-  },
-  categoryLabel: {
-    color: colors.text,
-    fontSize: typography.caption,
   },
 });

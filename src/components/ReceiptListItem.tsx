@@ -18,7 +18,9 @@ export const ReceiptListItem = ({ receipt, onPress }: Props) => {
         <Text style={styles.amount}>{formatCurrency(receipt.total)}</Text>
       </View>
       <View style={styles.meta}>
-        <Text style={styles.metaText}>{formatDate(receipt.receiptDate)}</Text>
+        <View>
+          <Text style={styles.metaText}>{formatDate(receipt.receiptDate)}</Text>
+        </View>
         <StatusBadge status={receipt.status} />
       </View>
     </Pressable>
