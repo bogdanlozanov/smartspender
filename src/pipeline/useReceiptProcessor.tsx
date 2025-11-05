@@ -67,7 +67,7 @@ export const useReceiptProcessor = () => {
 
           job = {
             ...job,
-            status: jobError.code === 'not_receipt' ? 'not_receipt' : 'failed',
+            status: 'failed',
             error: jobError,
             updatedAt: new Date().toISOString(),
           };

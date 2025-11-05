@@ -17,10 +17,10 @@ export const ReceiptListItem = ({ receipt, onPress }: Props) => {
         <Text style={styles.merchant}>{receipt.merchant ?? 'Unknown merchant'}</Text>
         <Text style={styles.amount}>{formatCurrency(receipt.total)}</Text>
       </View>
-        <View style={styles.meta}>
-          <Text style={styles.metaText}>{formatDate(receipt.receiptDate)}</Text>
-          <StatusBadge status={receipt.status} />
-        </View>
+      <View style={styles.meta}>
+        <Text style={styles.metaText}>{formatDate(receipt.receiptDate)}</Text>
+        <StatusBadge status={receipt.status} />
+      </View>
     </Pressable>
   );
 };

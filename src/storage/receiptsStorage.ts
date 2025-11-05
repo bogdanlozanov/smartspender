@@ -1,79 +1,41 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
-import type { LineItem, ReceiptWithItems } from '@/src/types';
+import type { ReceiptWithItems } from '@/src/types';
 
-const RECEIPTS_INDEX_KEY = '@smartspender/receipts';
-const RECEIPT_KEY_PREFIX = '@smartspender/receipt/';
-const LINE_ITEMS_KEY_PREFIX = '@smartspender/receipt-line-items/';
+const RECEIPTS_KEY = '@smartspender/receipts-v2';
 
-const buildReceiptKey = (id: string) => `${RECEIPT_KEY_PREFIX}${id}`;
-const buildLineItemsKey = (id: string) => `${LINE_ITEMS_KEY_PREFIX}${id}`;
-
-export const loadReceiptIds = async (): Promise<string[]> => {
-  const raw = await AsyncStorage.getItem(RECEIPTS_INDEX_KEY);
+const readStore = async (): Promise<ReceiptWithItems[]> => {
+  const raw = await AsyncStorage.getItem(RECEIPTS_KEY);
   if (!raw) {
     return [];
   }
+
   try {
     const parsed = JSON.parse(raw);
-    return Array.isArray(parsed) ? parsed : [];
-  } catch {
-    return [];
-  }
-};
-
-export const saveReceiptIds = async (ids: string[]) => {
-  await AsyncStorage.setItem(RECEIPTS_INDEX_KEY, JSON.stringify(ids));
-};
-
-export const loadReceipt = async (id: string): Promise<ReceiptWithItems | null> => {
-  const [receiptRaw, itemsRaw] = await Promise.all([
-    AsyncStorage.getItem(buildReceiptKey(id)),
-    AsyncStorage.getItem(buildLineItemsKey(id)),
-  ]);
-
-  if (!receiptRaw) {
-    return null;
+    if (Array.isArray(parsed)) {
+      return parsed as ReceiptWithItems[];
+    }
+  } catch (error) {
+    console.warn('Failed to parse receipts store', error);
   }
 
-  try {
-    const receipt = JSON.parse(receiptRaw);
-    const items: LineItem[] = itemsRaw ? JSON.parse(itemsRaw) : [];
-    return { ...receipt, lineItems: items };
-  } catch {
-    return null;
-  }
+  return [];
 };
 
-export const loadAllReceipts = async (): Promise<ReceiptWithItems[]> => {
-  const ids = await loadReceiptIds();
-  if (!ids.length) {
-    return [];
-  }
-
-  const receipts = await Promise.all(ids.map((id) => loadReceipt(id)));
-  return receipts.filter((receipt): receipt is ReceiptWithItems => Boolean(receipt));
+const writeStore = async (receipts: ReceiptWithItems[]) => {
+  await AsyncStorage.setItem(RECEIPTS_KEY, JSON.stringify(receipts));
 };
+
+export const loadAllReceipts = async (): Promise<ReceiptWithItems[]> => readStore();
 
 export const persistReceipt = async (receipt: ReceiptWithItems) => {
-  const { lineItems, ...receiptWithoutItems } = receipt;
-  const ids = await loadReceiptIds();
-  const nextIds = new Set(ids);
-  nextIds.add(receipt.id);
-  await AsyncStorage.multiSet([
-    [buildReceiptKey(receipt.id), JSON.stringify(receiptWithoutItems)],
-    [buildLineItemsKey(receipt.id), JSON.stringify(lineItems)],
-    [RECEIPTS_INDEX_KEY, JSON.stringify(Array.from(nextIds))],
-  ]);
+  const receipts = await readStore();
+  const others = receipts.filter((entry) => entry.id !== receipt.id);
+  await writeStore([receipt, ...others]);
 };
 
 export const deleteReceipt = async (id: string) => {
-  const ids = await loadReceiptIds();
-  const nextIds = ids.filter((item) => item !== id);
-  await AsyncStorage.multiRemove([
-    buildReceiptKey(id),
-    buildLineItemsKey(id),
-    RECEIPTS_INDEX_KEY,
-  ]);
-  await saveReceiptIds(nextIds);
+  const receipts = await readStore();
+  const next = receipts.filter((entry) => entry.id !== id);
+  await writeStore(next);
 };

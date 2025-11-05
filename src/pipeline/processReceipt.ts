@@ -1,14 +1,9 @@
 import { PIPELINE_STEPS } from '@/src/constants/pipeline';
-import { deleteImage, saveImage } from '@/src/storage';
-import type { ReceiptJobError, ReceiptJobResult, ReceiptWithItems } from '@/src/types';
-import { generateId } from '@/src/utils/id';
+import { analyzeReceipt } from '@/src/services/analyzeReceipt';
 import { categorizeReceipt } from '@/src/services/categorizer';
-import { detectReceipt } from '@/src/services/detector';
-import type { ReceiptDetectionResult } from '@/src/services/detector';
-import { parseReceipt } from '@/src/services/parser';
-import type { ParsedReceipt } from '@/src/services/parser';
-import { runOCR } from '@/src/services/ocr';
-import type { OCRResult } from '@/src/services/ocr';
+import { deleteImage, saveImage } from '@/src/storage';
+import type { ReceiptAnalysis, ReceiptJobError, ReceiptJobResult, ReceiptStatus, ReceiptWithItems } from '@/src/types';
+import { generateId } from '@/src/utils/id';
 
 import { preprocessImage } from './preprocessImage';
 
@@ -40,10 +35,9 @@ const createReceiptSkeleton = (id: string, imageUri: string): ReceiptWithItems =
     total: null,
     currency: 'BGN',
     categoryGuess: null,
-    confidence: null,
     imageUri,
-    rawText: null,
     providerMeta: null,
+    analysis: null,
     createdAt: timestamp,
     updatedAt: timestamp,
     lineItems: [],
@@ -74,31 +68,58 @@ export const processReceipt = async ({
     emitProgress('preprocess', onProgress);
     workingUri = await preprocessImage(imageUri);
     savedImageUri = await saveImage(workingUri);
+    workingUri = savedImageUri;
     hasPersistedImage = true;
 
-    emitProgress('ocr', onProgress);
-    const ocr: OCRResult = await runOCR(workingUri);
+    emitProgress('analyze', onProgress);
+    const analysis: ReceiptAnalysis = await analyzeReceipt(workingUri);
 
-    emitProgress('receipt_check', onProgress);
-    const detection: ReceiptDetectionResult = detectReceipt(ocr);
-    if (!detection.isReceipt) {
-      throw buildError('receipt_check', detection.reason ?? 'Not a receipt', 'not_receipt');
-    }
-
-    emitProgress('parse', onProgress);
-    const parsed: ParsedReceipt = parseReceipt({ ocr, receiptId: jobId });
+    const lineItems = analysis.items.map((item) => ({
+      id: generateId(),
+      receiptId: jobId,
+      description: item.name,
+      quantity: item.qty ?? null,
+      unit: item.unit ?? null,
+      unitPrice: item.unitPrice ?? null,
+      discount: item.discount ?? null,
+      total: item.total ?? null,
+      categoryGuess: null,
+    }));
 
     emitProgress('categorize', onProgress);
-    const { items, receiptCategory } = categorizeReceipt(parsed.lineItems);
+    const { items, receiptCategory } = categorizeReceipt(lineItems);
+
+    const subtotal = analysis.subtotal ?? items.reduce((acc, item) => acc + (item.total ?? 0), 0);
+    const total = analysis.total ?? subtotal;
+    const parsedDate = analysis.date ? new Date(analysis.date) : null;
+    const receiptDate = parsedDate && Number.isFinite(parsedDate.getTime()) ? parsedDate.toISOString() : null;
+    const warnings: string[] = [];
+    if (!items.length) {
+      warnings.push('AI could not identify line items.');
+    }
+    const status: ReceiptStatus = warnings.length ? 'needs_review' : 'done';
+
+    const normalizedAnalysis: ReceiptAnalysis = {
+      ...analysis,
+      date: receiptDate ?? analysis.date,
+    };
 
     const base = createReceiptSkeleton(jobId, savedImageUri);
     const receipt: ReceiptWithItems = {
       ...base,
-      ...parsed.receipt,
-      status: parsed.warnings.length > 0 ? 'needs_review' : 'done',
+      merchant: analysis.merchantName ?? null,
+      receiptDate,
+      subtotal,
+      tax: null,
+      total,
+      status,
       categoryGuess: receiptCategory,
-      confidence: parsed.confidence,
       lineItems: items,
+      providerMeta: {
+        provider: 'openai',
+        model: analysis.model ?? process.env.EXPO_PUBLIC_OPENAI_MODEL ?? 'gpt-4o-mini',
+      },
+      analysis: normalizedAnalysis,
       updatedAt: new Date().toISOString(),
     };
 
@@ -113,7 +134,7 @@ export const processReceipt = async ({
         ...receipt,
         lineItems: items,
       },
-      warnings: parsed.warnings,
+      warnings,
     };
   } catch (error) {
     if (hasPersistedImage) {
@@ -126,9 +147,9 @@ export const processReceipt = async ({
 
     console.error('Receipt processing failed', error);
     throw buildError(
-      'persist',
+      'analyze',
       error instanceof Error ? error.message : 'Failed to process receipt.',
-      'unknown',
+      'analysis_failed',
     );
   }
 };

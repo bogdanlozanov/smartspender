@@ -4,6 +4,7 @@ import { useLocalSearchParams, useRouter } from 'expo-router';
 
 import { AppButton } from '@/src/components/AppButton';
 import { Card } from '@/src/components/Card';
+import { ReceiptAnalysisCard } from '@/src/components/ReceiptAnalysisCard';
 import { StatusBadge } from '@/src/components/StatusBadge';
 import { DEFAULT_CATEGORIES } from '@/src/constants/categories';
 import { useReceipts } from '@/src/hooks/useReceipts';
@@ -61,6 +62,8 @@ export const ReceiptDetailScreen = () => {
         {category && <Text style={styles.category}>Category: {category.name}</Text>}
       </Card>
 
+      <ReceiptAnalysisCard analysis={receipt.analysis} />
+
       <Card padding="lg">
         <Text style={styles.sectionTitle}>Items</Text>
         {receipt.lineItems.length === 0 ? (
@@ -68,8 +71,18 @@ export const ReceiptDetailScreen = () => {
         ) : (
           receipt.lineItems.map((item) => (
             <View key={item.id} style={styles.itemRow}>
-              <View>
+              <View style={styles.itemInfo}>
                 <Text style={styles.itemDescription}>{item.description}</Text>
+                {(item.quantity || item.unitPrice) && (
+                  <Text style={styles.itemMeta}>
+                    {item.quantity ? `${item.quantity}${item.unit ? ` ${item.unit}` : ''}` : ''}
+                    {item.quantity && item.unitPrice ? ' × ' : ''}
+                    {item.unitPrice ? formatCurrency(item.unitPrice) : ''}
+                  </Text>
+                )}
+                {typeof item.discount === 'number' && item.discount !== 0 && (
+                  <Text style={styles.itemDiscount}>Discount {formatCurrency(item.discount)}</Text>
+                )}
                 {item.categoryGuess && (
                   <Text style={styles.itemCategory}>
                     Category:{' '}
@@ -90,10 +103,14 @@ export const ReceiptDetailScreen = () => {
           <Text style={styles.summaryLabel}>Subtotal</Text>
           <Text style={styles.summaryValue}>{formatCurrency(receipt.subtotal)}</Text>
         </View>
-        <View style={styles.summaryRow}>
-          <Text style={styles.summaryLabel}>Tax</Text>
-          <Text style={styles.summaryValue}>{formatCurrency(receipt.tax)}</Text>
-        </View>
+        {receipt.analysis?.discountsTotal !== undefined && (
+          <View style={styles.summaryRow}>
+            <Text style={styles.summaryLabel}>Discounts</Text>
+            <Text style={[styles.summaryValue, styles.summaryDiscount]}>
+              {formatCurrency(receipt.analysis.discountsTotal)}
+            </Text>
+          </View>
+        )}
         <View style={styles.summaryRow}>
           <Text style={styles.summaryLabel}>Total</Text>
           <Text style={styles.summaryValue}>{formatCurrency(receipt.total)}</Text>
@@ -167,9 +184,23 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     marginBottom: spacing.md,
   },
+  itemInfo: {
+    flex: 1,
+    paddingRight: spacing.md,
+  },
   itemDescription: {
     color: colors.text,
     fontSize: typography.body,
+  },
+  itemMeta: {
+    color: colors.textMuted,
+    fontSize: typography.caption,
+    marginTop: spacing.xs,
+  },
+  itemDiscount: {
+    color: colors.accent,
+    fontSize: typography.caption,
+    marginTop: spacing.xs,
   },
   itemCategory: {
     color: colors.textMuted,
@@ -190,6 +221,9 @@ const styles = StyleSheet.create({
   summaryValue: {
     color: colors.text,
     fontWeight: '600',
+  },
+  summaryDiscount: {
+    color: colors.accent,
   },
   actions: {
     marginTop: spacing.xl,

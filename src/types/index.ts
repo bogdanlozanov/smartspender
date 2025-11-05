@@ -1,22 +1,37 @@
-export type ReceiptStatus =
-  | 'uploaded'
-  | 'queued'
-  | 'processing'
-  | 'needs_review'
-  | 'done'
-  | 'error';
+export type ReceiptStatus = 'processing' | 'needs_review' | 'done' | 'error';
 
 export type CurrencyCode = 'BGN';
+
+export interface ReceiptAnalysisItem {
+  name: string;
+  qty?: number;
+  unit?: 'x' | 'kg' | 'g' | 'l' | 'ml' | 'other';
+  unitPrice?: number;
+  discount?: number;
+  total: number;
+}
+
+export interface ReceiptAnalysis {
+  merchantName: string;
+  date: string;
+  currency: CurrencyCode;
+  items: ReceiptAnalysisItem[];
+  subtotal?: number;
+  discountsTotal?: number;
+  total: number;
+  model?: string;
+}
 
 export interface LineItem {
   id: string;
   receiptId: string;
   description: string;
-  quantity: number;
+  quantity: number | null;
+  unit: ReceiptAnalysisItem['unit'] | null;
   unitPrice: number | null;
+  discount: number | null;
   total: number | null;
   categoryGuess: ExpenseCategoryKey | null;
-  confidence: number | null;
 }
 
 export type ExpenseCategoryKey =
@@ -49,10 +64,9 @@ export interface Receipt {
   total: number | null;
   currency: CurrencyCode;
   categoryGuess: ExpenseCategoryKey | null;
-  confidence: number | null;
   imageUri: string;
-  rawText: string | null;
   providerMeta: Record<string, unknown> | null;
+  analysis: ReceiptAnalysis | null;
   createdAt: string;
   updatedAt: string;
 }
@@ -61,13 +75,7 @@ export type ReceiptWithItems = Receipt & {
   lineItems: LineItem[];
 };
 
-export type PipelineStepId =
-  | 'preprocess'
-  | 'ocr'
-  | 'receipt_check'
-  | 'parse'
-  | 'categorize'
-  | 'persist';
+export type PipelineStepId = 'preprocess' | 'analyze' | 'categorize' | 'persist';
 
 export interface PipelineStep {
   id: PipelineStepId;
@@ -75,12 +83,7 @@ export interface PipelineStep {
   progress: number;
 }
 
-export type PipelineStatus =
-  | 'idle'
-  | 'running'
-  | 'completed'
-  | 'failed'
-  | 'not_receipt';
+export type PipelineStatus = 'idle' | 'running' | 'completed' | 'failed';
 
 export interface PipelineProgress {
   step: PipelineStepId;
@@ -96,14 +99,7 @@ export interface ReceiptJobResult {
 export interface ReceiptJobError {
   step: PipelineStepId;
   message: string;
-  code?:
-    | 'not_receipt'
-    | 'network_error'
-    | 'ocr_failed'
-    | 'parse_failed'
-    | 'categorization_failed'
-    | 'save_failed'
-    | 'unknown';
+  code?: 'network_error' | 'analysis_failed' | 'categorization_failed' | 'save_failed' | 'unknown';
 }
 
 export interface ReceiptJob {

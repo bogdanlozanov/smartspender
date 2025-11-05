@@ -14,6 +14,7 @@ import { useLocalSearchParams, useRouter } from 'expo-router';
 
 import { AppButton } from '@/src/components/AppButton';
 import { Card } from '@/src/components/Card';
+import { ReceiptAnalysisCard } from '@/src/components/ReceiptAnalysisCard';
 import { DEFAULT_CATEGORIES } from '@/src/constants/categories';
 import { useReceipts } from '@/src/hooks/useReceipts';
 import { useReceiptActions } from '@/src/state/useReceiptActions';
@@ -66,6 +67,11 @@ export const ReviewScreen = () => {
     );
   }
 
+  const modelName = useMemo(() => {
+    const meta = receipt.providerMeta as { model?: string } | null;
+    return meta?.model ?? 'gpt-4o-mini';
+  }, [receipt.providerMeta]);
+
   const handleSave = async () => {
     try {
       setSaving(true);
@@ -114,9 +120,11 @@ export const ReviewScreen = () => {
         <Card padding="lg">
           <Image source={{ uri: receipt.imageUri }} style={styles.image} />
           <Text style={styles.caption}>
-            Captured {formatDate(receipt.createdAt)} • Confidence {Math.round((receipt.confidence ?? 0) * 100)}%
+            Captured {formatDate(receipt.createdAt)} • AI model {modelName}
           </Text>
         </Card>
+
+        <ReceiptAnalysisCard analysis={receipt.analysis} />
 
         <Card padding="lg">
           <Text style={styles.sectionTitle}>Receipt details</Text>

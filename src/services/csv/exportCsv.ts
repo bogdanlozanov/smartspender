@@ -14,7 +14,9 @@ const CSV_HEADERS = [
   'Category',
   'Item Description',
   'Item Quantity',
+  'Item Unit',
   'Item Unit Price',
+  'Item Discount',
   'Item Total',
 ];
 
@@ -43,6 +45,7 @@ export const buildCsvContent = (receipts: ReceiptWithItems[]) => {
           sanitize(''),
           sanitize(''),
           sanitize(''),
+          sanitize(''),
         ].join(','),
       ];
     }
@@ -58,7 +61,9 @@ export const buildCsvContent = (receipts: ReceiptWithItems[]) => {
         sanitize(receipt.categoryGuess),
         sanitize(item.description),
         sanitize(item.quantity),
+        sanitize(item.unit),
         sanitize(item.unitPrice),
+        sanitize(item.discount),
         sanitize(item.total),
       ].join(','),
     );

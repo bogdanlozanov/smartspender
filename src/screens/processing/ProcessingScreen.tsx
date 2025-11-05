@@ -22,8 +22,6 @@ export const ProcessingScreen = () => {
         return 'Receipt processed!';
       case 'failed':
         return 'We hit a snag';
-      case 'not_receipt':
-        return 'This looks like something else';
       default:
         return 'Processing your receipt';
     }
@@ -35,10 +33,8 @@ export const ProcessingScreen = () => {
         return 'Review the extracted details to make sure everything looks correct.';
       case 'failed':
         return job?.error?.message ?? 'Something went wrong while processing this receipt.';
-      case 'not_receipt':
-        return job?.error?.message ?? 'The photo does not appear to contain a receipt.';
       default:
-        return 'Hang tight while we run OCR, extract the totals, and categorise your receipt.';
+        return 'Hang tight while we analyse the receipt, extract the totals, and categorise everything.';
     }
   }, [job]);
 
@@ -69,11 +65,6 @@ export const ProcessingScreen = () => {
         {job?.status === 'failed' && (
           <View style={styles.actionItem}>
             <AppButton label="Try again" onPress={() => router.push('/')} variant="secondary" />
-          </View>
-        )}
-        {job?.status === 'not_receipt' && (
-          <View style={styles.actionItem}>
-            <AppButton label="Capture another photo" onPress={() => router.push('/')} />
           </View>
         )}
         {!job && (

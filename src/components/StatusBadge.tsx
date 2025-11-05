@@ -7,8 +7,6 @@ const STATUS_STYLES: Record<
   ReceiptStatus,
   { bg: string; color: string; label: string }
 > = {
-  uploaded: { bg: colors.surfaceAlt, color: colors.text, label: 'Uploaded' },
-  queued: { bg: colors.surfaceAlt, color: colors.text, label: 'Queued' },
   processing: { bg: colors.surfaceAlt, color: colors.text, label: 'Processing' },
   needs_review: { bg: colors.warning, color: '#0F1A2A', label: 'Needs review' },
   done: { bg: colors.success, color: '#0F1A2A', label: 'Ready' },

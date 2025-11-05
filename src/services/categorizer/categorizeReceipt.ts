@@ -20,7 +20,7 @@ interface CategorizeResult {
   receiptCategory: ExpenseCategoryKey;
 }
 
-const guessCategory = (description: string): { category: ExpenseCategoryKey; confidence: number } => {
+const guessCategory = (description: string): ExpenseCategoryKey => {
   const normalized = description.toLowerCase();
 
   for (const [category, patterns] of Object.entries(KEYWORDS) as [
@@ -29,12 +29,12 @@ const guessCategory = (description: string): { category: ExpenseCategoryKey; con
   ][]) {
     for (const pattern of patterns) {
       if (pattern.test(normalized)) {
-        return { category, confidence: 0.8 };
+        return category;
       }
     }
   }
 
-  return { category: 'other', confidence: 0.3 };
+  return 'other';
 };
 
 export const categorizeReceipt = (items: LineItem[]): CategorizeResult => {
@@ -43,11 +43,10 @@ export const categorizeReceipt = (items: LineItem[]): CategorizeResult => {
       return item;
     }
 
-    const { category, confidence } = guessCategory(item.description);
+    const category = guessCategory(item.description);
     return {
       ...item,
       categoryGuess: category,
-      confidence,
     };
   });
 
