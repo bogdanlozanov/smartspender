@@ -18,6 +18,20 @@ const STEP_FILL: Record<StepState, string> = {
   pending: '0%',
 };
 
+const STEP_COLORS: Record<StepState, string> = {
+  pending: colors.border,
+  active: colors.primary,
+  completed: colors.success,
+  failed: colors.danger,
+};
+
+const LABEL_COLORS: Record<StepState, string> = {
+  pending: colors.textMuted,
+  active: colors.text,
+  completed: colors.success,
+  failed: colors.danger,
+};
+
 export const ProgressStepper = ({ progress, status = 'running' }: Props) => {
   const stepOrder = new Map(PIPELINE_STEPS.map((step, index) => [step.id, index]));
   const orderedProgress = progress.filter((item) => stepOrder.has(item.step));
@@ -58,14 +72,16 @@ export const ProgressStepper = ({ progress, status = 'running' }: Props) => {
     <View style={styles.container}>
       {PIPELINE_STEPS.map((step, index) => {
         const state = resolveState(index);
+        const accentColor = STEP_COLORS[state];
+        const labelColor = LABEL_COLORS[state];
+
         return (
           <View key={step.id} style={[styles.step, index > 0 && styles.stepSpacing]}>
             <View
               style={[
                 styles.dot,
-                state === 'completed' && styles.dotCompleted,
                 state === 'active' && styles.dotActive,
-                state === 'failed' && styles.dotFailed,
+                { backgroundColor: accentColor },
               ]}
             />
             <View style={styles.info}>
@@ -73,28 +89,25 @@ export const ProgressStepper = ({ progress, status = 'running' }: Props) => {
                 <Text
                   style={[
                     styles.label,
-                    state === 'completed' && styles.labelCompleted,
-                    state === 'active' && styles.labelActive,
-                    state === 'pending' && styles.labelPending,
-                    state === 'failed' && styles.labelFailed,
+                    (state === 'active' || state === 'failed') && styles.labelStrong,
+                    { color: labelColor },
                   ]}
                 >
                   {step.label}
                 </Text>
-                {state === 'active' && status === 'running' && (
-                  <ActivityIndicator size="small" color={colors.primary} style={styles.spinner} />
-                )}
               </View>
-              <View style={styles.bar}>
-                <View
-                  style={[
-                    styles.fill,
-                    state === 'completed' && styles.fillCompleted,
-                    state === 'active' && styles.fillActive,
-                    state === 'failed' && styles.fillFailed,
-                    { width: STEP_FILL[state] },
-                  ]}
-                />
+              <View style={styles.progressRow}>
+                <View style={styles.bar}>
+                  <View
+                    style={[
+                      styles.fill,
+                      { width: STEP_FILL[state], backgroundColor: accentColor },
+                    ]}
+                  />
+                </View>
+                {state === 'active' && status === 'running' && (
+                  <ActivityIndicator size="small" color={accentColor} style={styles.spinner} />
+                )}
               </View>
             </View>
           </View>
@@ -119,10 +132,6 @@ const styles = StyleSheet.create({
     width: 12,
     height: 12,
     borderRadius: 6,
-    backgroundColor: colors.border,
-  },
-  dotCompleted: {
-    backgroundColor: colors.primary,
   },
   info: {
     flex: 1,
@@ -131,28 +140,20 @@ const styles = StyleSheet.create({
   labelRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'space-between',
   },
   label: {
-    color: colors.text,
     fontSize: typography.caption,
     marginBottom: spacing.xs,
   },
-  labelPending: {
-    color: colors.textMuted,
-  },
-  labelActive: {
-    color: colors.text,
+  labelStrong: {
     fontWeight: '600',
   },
-  labelCompleted: {
-    color: colors.text,
-  },
-  labelFailed: {
-    color: colors.danger,
-    fontWeight: '600',
+  progressRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
   },
   bar: {
+    flex: 1,
     height: 6,
     backgroundColor: colors.surfaceAlt,
     borderRadius: 3,
@@ -160,23 +161,9 @@ const styles = StyleSheet.create({
   },
   fill: {
     height: '100%',
-    backgroundColor: colors.primary,
-  },
-  fillCompleted: {
-    backgroundColor: colors.primary,
-  },
-  fillActive: {
-    backgroundColor: colors.primary,
-  },
-  fillFailed: {
-    backgroundColor: colors.danger,
   },
   dotActive: {
-    backgroundColor: colors.primary,
     transform: [{ scale: 1.2 }],
-  },
-  dotFailed: {
-    backgroundColor: colors.danger,
   },
   spinner: {
     marginLeft: spacing.sm,
