@@ -1,7 +1,7 @@
-import { useMemo } from 'react';
 import { Image } from 'expo-image';
 import { useLocalSearchParams, useRouter } from 'expo-router';
-import { ActivityIndicator, StyleSheet, Text, View } from 'react-native';
+import { useMemo } from 'react';
+import { StyleSheet, Text, View } from 'react-native';
 
 import { AppButton } from '@/src/components/AppButton';
 import { Card } from '@/src/components/Card';
@@ -48,12 +48,6 @@ export const ProcessingScreen = () => {
         <Card padding="lg" style={styles.previewCard}>
           <Image source={{ uri: job.imageUri }} style={styles.previewImage} />
         </Card>
-      )}
-
-      {job?.status === 'running' && (
-        <View style={styles.indicator}>
-          <ActivityIndicator size="large" color={colors.primary} />
-        </View>
       )}
 
       <Card padding="lg" style={styles.progressCard}>

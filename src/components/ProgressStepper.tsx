@@ -1,8 +1,8 @@
-import { ActivityIndicator, View, Text, StyleSheet } from 'react-native';
+import { ActivityIndicator, StyleSheet, Text, View } from 'react-native';
 
 import { PIPELINE_STEPS } from '@/src/constants/pipeline';
-import type { PipelineProgress, PipelineStatus } from '@/src/types';
 import { colors, spacing, typography } from '@/src/theme';
+import type { PipelineProgress, PipelineStatus } from '@/src/types';
 
 interface Props {
   progress: PipelineProgress[];
@@ -13,7 +13,7 @@ type StepState = 'pending' | 'active' | 'completed' | 'failed';
 
 const STEP_FILL: Record<StepState, string> = {
   completed: '100%',
-  active: '55%',
+  active: '65%',
   failed: '35%',
   pending: '0%',
 };
