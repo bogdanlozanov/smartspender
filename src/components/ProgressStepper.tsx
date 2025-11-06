@@ -1,28 +1,100 @@
-import { View, Text, StyleSheet } from 'react-native';
+import { ActivityIndicator, View, Text, StyleSheet } from 'react-native';
 
 import { PIPELINE_STEPS } from '@/src/constants/pipeline';
-import type { PipelineProgress } from '@/src/types';
+import type { PipelineProgress, PipelineStatus } from '@/src/types';
 import { colors, spacing, typography } from '@/src/theme';
 
 interface Props {
   progress: PipelineProgress[];
+  status?: PipelineStatus;
 }
 
-export const ProgressStepper = ({ progress }: Props) => {
-  const progressMap = Object.fromEntries(progress.map((item) => [item.step, item.progress]));
+type StepState = 'pending' | 'active' | 'completed' | 'failed';
+
+const STEP_FILL: Record<StepState, string> = {
+  completed: '100%',
+  active: '55%',
+  failed: '35%',
+  pending: '0%',
+};
+
+export const ProgressStepper = ({ progress, status = 'running' }: Props) => {
+  const stepOrder = new Map(PIPELINE_STEPS.map((step, index) => [step.id, index]));
+  const orderedProgress = progress.filter((item) => stepOrder.has(item.step));
+  const currentStepId =
+    status === 'completed'
+      ? null
+      : orderedProgress.length > 0
+        ? orderedProgress[orderedProgress.length - 1].step
+        : null;
+  const currentIndex = currentStepId != null ? stepOrder.get(currentStepId) ?? -1 : -1;
+
+  const resolveState = (index: number): StepState => {
+    if (status === 'completed') {
+      return 'completed';
+    }
+    if (status === 'failed') {
+      if (index < currentIndex) {
+        return 'completed';
+      }
+      if (index === currentIndex) {
+        return 'failed';
+      }
+      return 'pending';
+    }
+    if (currentIndex === -1) {
+      return index === 0 ? 'active' : 'pending';
+    }
+    if (index < currentIndex) {
+      return 'completed';
+    }
+    if (index === currentIndex) {
+      return 'active';
+    }
+    return 'pending';
+  };
 
   return (
     <View style={styles.container}>
       {PIPELINE_STEPS.map((step, index) => {
-        const value = progressMap[step.id] ?? 0;
-        const completed = value >= step.progress;
+        const state = resolveState(index);
         return (
           <View key={step.id} style={[styles.step, index > 0 && styles.stepSpacing]}>
-            <View style={[styles.dot, completed && styles.dotCompleted]} />
+            <View
+              style={[
+                styles.dot,
+                state === 'completed' && styles.dotCompleted,
+                state === 'active' && styles.dotActive,
+                state === 'failed' && styles.dotFailed,
+              ]}
+            />
             <View style={styles.info}>
-              <Text style={styles.label}>{step.label}</Text>
+              <View style={styles.labelRow}>
+                <Text
+                  style={[
+                    styles.label,
+                    state === 'completed' && styles.labelCompleted,
+                    state === 'active' && styles.labelActive,
+                    state === 'pending' && styles.labelPending,
+                    state === 'failed' && styles.labelFailed,
+                  ]}
+                >
+                  {step.label}
+                </Text>
+                {state === 'active' && status === 'running' && (
+                  <ActivityIndicator size="small" color={colors.primary} style={styles.spinner} />
+                )}
+              </View>
               <View style={styles.bar}>
-                <View style={[styles.fill, { width: `${completed ? 100 : value}%` }]} />
+                <View
+                  style={[
+                    styles.fill,
+                    state === 'completed' && styles.fillCompleted,
+                    state === 'active' && styles.fillActive,
+                    state === 'failed' && styles.fillFailed,
+                    { width: STEP_FILL[state] },
+                  ]}
+                />
               </View>
             </View>
           </View>
@@ -41,7 +113,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   stepSpacing: {
-    marginTop: spacing.lg,
+    marginTop: spacing.md,
   },
   dot: {
     width: 12,
@@ -54,11 +126,31 @@ const styles = StyleSheet.create({
   },
   info: {
     flex: 1,
+    marginLeft: spacing.md,
+  },
+  labelRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
   },
   label: {
     color: colors.text,
     fontSize: typography.caption,
     marginBottom: spacing.xs,
+  },
+  labelPending: {
+    color: colors.textMuted,
+  },
+  labelActive: {
+    color: colors.text,
+    fontWeight: '600',
+  },
+  labelCompleted: {
+    color: colors.text,
+  },
+  labelFailed: {
+    color: colors.danger,
+    fontWeight: '600',
   },
   bar: {
     height: 6,
@@ -69,5 +161,24 @@ const styles = StyleSheet.create({
   fill: {
     height: '100%',
     backgroundColor: colors.primary,
+  },
+  fillCompleted: {
+    backgroundColor: colors.primary,
+  },
+  fillActive: {
+    backgroundColor: colors.primary,
+  },
+  fillFailed: {
+    backgroundColor: colors.danger,
+  },
+  dotActive: {
+    backgroundColor: colors.primary,
+    transform: [{ scale: 1.2 }],
+  },
+  dotFailed: {
+    backgroundColor: colors.danger,
+  },
+  spinner: {
+    marginLeft: spacing.sm,
   },
 });

@@ -84,7 +84,7 @@ export const processReceipt = async ({
       total: item.total ?? null,
     }));
 
-    emitProgress('categorize', onProgress);
+    emitProgress('persist', onProgress);
 
     const items = lineItems;
     const itemsTotal = items.reduce((acc, item) => acc + (item.total ?? 0), 0);
@@ -122,8 +122,6 @@ export const processReceipt = async ({
       analysis: normalizedAnalysis,
       updatedAt: new Date().toISOString(),
     };
-
-    emitProgress('persist', onProgress);
 
     if (deleteOriginal && hasPersistedImage && imageUri !== savedImageUri) {
       await deleteImage(imageUri);

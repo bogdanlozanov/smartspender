@@ -47,7 +47,7 @@ export type ReceiptWithItems = Receipt & {
   lineItems: LineItem[];
 };
 
-export type PipelineStepId = 'preprocess' | 'analyze' | 'categorize' | 'persist';
+export type PipelineStepId = 'preprocess' | 'analyze' | 'persist';
 
 export interface PipelineStep {
   id: PipelineStepId;

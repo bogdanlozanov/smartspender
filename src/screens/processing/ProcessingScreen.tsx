@@ -1,5 +1,6 @@
-import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useMemo } from 'react';
+import { Image } from 'expo-image';
+import { useLocalSearchParams, useRouter } from 'expo-router';
 import { ActivityIndicator, StyleSheet, Text, View } from 'react-native';
 
 import { AppButton } from '@/src/components/AppButton';
@@ -43,14 +44,21 @@ export const ProcessingScreen = () => {
       <Text style={styles.heading}>{header}</Text>
       <Text style={styles.description}>{description}</Text>
 
+      {job?.imageUri && (
+        <Card padding="lg" style={styles.previewCard}>
+          <Image source={{ uri: job.imageUri }} style={styles.previewImage} />
+        </Card>
+      )}
+
       {job?.status === 'running' && (
         <View style={styles.indicator}>
           <ActivityIndicator size="large" color={colors.primary} />
         </View>
       )}
 
-      <Card padding="lg">
-        <ProgressStepper progress={progress} />
+      <Card padding="lg" style={styles.progressCard}>
+        <Text style={styles.progressHeading}>Pipeline status</Text>
+        <ProgressStepper progress={progress} status={job?.status ?? 'running'} />
       </Card>
 
       <View style={styles.actions}>
@@ -96,11 +104,29 @@ const styles = StyleSheet.create({
   },
   description: {
     color: colors.textMuted,
-    marginBottom: spacing.xl,
+    marginBottom: spacing.lg,
     lineHeight: 20,
   },
+  previewCard: {
+    marginBottom: spacing.lg,
+  },
+  previewImage: {
+    width: '100%',
+    height: 220,
+    borderRadius: spacing.md,
+  },
   indicator: {
+    marginBottom: spacing.lg,
+  },
+  progressCard: {
     marginBottom: spacing.xl,
+  },
+  progressHeading: {
+    fontSize: typography.caption,
+    color: colors.textMuted,
+    marginBottom: spacing.md,
+    textTransform: 'uppercase',
+    letterSpacing: 0.8,
   },
   actions: {
     marginTop: spacing.xl,
