@@ -1,4 +1,5 @@
 import { ActivityIndicator, StyleSheet, Text, View } from 'react-native';
+import type { DimensionValue } from 'react-native';
 
 import { PIPELINE_STEPS } from '@/src/constants/pipeline';
 import { colors, spacing, typography } from '@/src/theme';
@@ -11,7 +12,7 @@ interface Props {
 
 type StepState = 'pending' | 'active' | 'completed' | 'failed';
 
-const STEP_FILL: Record<StepState, string> = {
+const STEP_FILL: Record<StepState, DimensionValue> = {
   completed: '100%',
   active: '65%',
   failed: '35%',

@@ -5,7 +5,7 @@ export type CurrencyCode = 'BGN';
 export interface ReceiptAnalysisItem {
   name: string;
   qty?: number;
-  unit?: 'x' | 'kg' | 'g' | 'l' | 'ml' | 'other';
+  unit?: string;
   unitPrice?: number;
   total: number;
 }

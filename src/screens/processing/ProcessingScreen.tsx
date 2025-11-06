@@ -16,6 +16,7 @@ export const ProcessingScreen = () => {
 
   const job = jobId ? state.jobs[jobId] : undefined;
   const progress = job?.progress ?? [];
+  const receiptId = job?.result?.receipt.id;
 
   const header = useMemo(() => {
     switch (job?.status) {
@@ -56,14 +57,14 @@ export const ProcessingScreen = () => {
       </Card>
 
       <View style={styles.actions}>
-        {job?.status === 'completed' && job.result && (
+        {job?.status === 'completed' && receiptId && (
           <View style={styles.actionItem}>
             <AppButton
               label="Edit receipt"
               onPress={() =>
                 router.replace({
                   pathname: '/review/[id]',
-                  params: { id: job.result.receipt.id },
+                  params: { id: receiptId },
                 })
               }
             />
