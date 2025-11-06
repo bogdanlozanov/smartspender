@@ -97,7 +97,10 @@ export const ReceiptDetailScreen = () => {
 
       <View style={styles.actions}>
         <View style={styles.actionItem}>
-          <AppButton label="Edit" onPress={() => router.push({ pathname: `/review/${receipt.id}` })} />
+          <AppButton
+            label="Edit"
+            onPress={() => router.push({ pathname: '/review/[id]', params: { id: receipt.id } })}
+          />
         </View>
         <View style={styles.actionItem}>
           <AppButton label="Delete" onPress={handleDelete} variant="secondary" />

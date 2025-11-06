@@ -1,4 +1,5 @@
 import { createContext, useContext, useEffect, useMemo, useReducer } from 'react';
+import type { Dispatch, ReactNode } from 'react';
 
 import { loadAllReceipts } from '@/src/storage/receiptsStorage';
 
@@ -7,13 +8,13 @@ import type { ReceiptsAction, ReceiptsState } from './types';
 
 interface ReceiptsContextValue {
   state: ReceiptsState;
-  dispatch: React.Dispatch<ReceiptsAction>;
+  dispatch: Dispatch<ReceiptsAction>;
 }
 
 const ReceiptsContext = createContext<ReceiptsContextValue | undefined>(undefined);
 
 interface Props {
-  children: React.ReactNode;
+  children: ReactNode;
 }
 
 export const ReceiptsProvider = ({ children }: Props) => {

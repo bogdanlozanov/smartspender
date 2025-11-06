@@ -93,7 +93,7 @@ export const ReviewScreen = () => {
 
       await upsertReceipt(updated);
       Alert.alert('Saved', 'Receipt details updated.');
-      router.replace({ pathname: `/history/${receipt.id}` });
+      router.replace({ pathname: '/history/[id]', params: { id: receipt.id } });
     } catch (error) {
       console.error('Failed to save receipt', error);
       Alert.alert('Save failed', 'Could not save receipt changes.');

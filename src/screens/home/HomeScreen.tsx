@@ -1,4 +1,4 @@
-import { useMemo, useState, useCallback } from 'react';
+import { useState, useCallback } from 'react';
 import { ActivityIndicator, Alert, ScrollView, StyleSheet, Text, View } from 'react-native';
 import * as ImagePicker from 'expo-image-picker';
 import { useRouter } from 'expo-router';
@@ -145,7 +145,7 @@ export const HomeScreen = () => {
             <View key={receipt.id} style={styles.listItem}>
               <ReceiptListItem
                 receipt={receipt}
-                onPress={() => router.push({ pathname: '/history/' + receipt.id })}
+                onPress={() => router.push({ pathname: '/history/[id]', params: { id: receipt.id } })}
               />
             </View>
           ))

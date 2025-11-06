@@ -1,3 +1,4 @@
+import { APP_CURRENCY } from '@/src/constants/app';
 import { PIPELINE_STEPS } from '@/src/constants/pipeline';
 import { analyzeReceipt } from '@/src/services/analyzeReceipt';
 import { deleteImage, saveImage } from '@/src/storage';
@@ -32,7 +33,7 @@ const createReceiptSkeleton = (id: string, imageUri: string): ReceiptWithItems =
     subtotal: null,
     tax: null,
     total: null,
-    currency: 'BGN',
+    currency: APP_CURRENCY,
     imageUri,
     providerMeta: null,
     analysis: null,

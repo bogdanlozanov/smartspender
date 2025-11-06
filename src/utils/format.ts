@@ -1,4 +1,6 @@
-export const formatCurrency = (value: number | null, currency: string = 'BGN') => {
+import { APP_CURRENCY } from '@/src/constants/app';
+
+export const formatCurrency = (value: number | null, currency: string = APP_CURRENCY) => {
   if (value === null || Number.isNaN(value)) {
     return '—';
   }

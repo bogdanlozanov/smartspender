@@ -1,9 +1,10 @@
+import type { ReactNode } from 'react';
 import { View, StyleSheet, type StyleProp, type ViewStyle } from 'react-native';
 
 import { colors, spacing } from '@/src/theme';
 
 interface Props {
-  children: React.ReactNode;
+  children: ReactNode;
   padding?: 'sm' | 'md' | 'lg';
   style?: StyleProp<ViewStyle>;
 }

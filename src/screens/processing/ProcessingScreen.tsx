@@ -1,6 +1,6 @@
+import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useMemo } from 'react';
 import { ActivityIndicator, StyleSheet, Text, View } from 'react-native';
-import { useLocalSearchParams, useRouter } from 'expo-router';
 
 import { AppButton } from '@/src/components/AppButton';
 import { Card } from '@/src/components/Card';
@@ -58,7 +58,12 @@ export const ProcessingScreen = () => {
           <View style={styles.actionItem}>
             <AppButton
               label="Review receipt"
-              onPress={() => router.replace({ pathname: `/review/${job.result.receipt.id}` })}
+              onPress={() =>
+                router.replace({
+                  pathname: '/review/[id]',
+                  params: { id: job.result.receipt.id },
+                })
+              }
             />
           </View>
         )}

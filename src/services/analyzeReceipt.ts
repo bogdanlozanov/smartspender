@@ -3,6 +3,7 @@ import { File } from 'expo-file-system';
 import { z } from 'zod';
 
 import type { ReceiptAnalysis } from '@/src/types';
+import { APP_CURRENCY } from '@/src/constants/app';
 
 const OPENAI_API_KEY = process.env.EXPO_PUBLIC_OPENAI_API_KEY;
 const DEFAULT_MODEL = process.env.EXPO_PUBLIC_OPENAI_MODEL ?? 'gpt-4o-mini';
@@ -29,7 +30,7 @@ const itemSchema = z.object({
 
 const receiptSchema = z.object({
   merchantName: z.string().min(1),
-  currency: z.literal('BGN'),
+  currency: z.literal(APP_CURRENCY),
   items: z.array(itemSchema).min(1),
   subtotal: z.number().optional(),
   total: z.number().nonnegative(),
@@ -43,7 +44,7 @@ const receiptJsonSchema = {
   required: ['merchantName', 'currency', 'items', 'total'],
   properties: {
     merchantName: { type: 'string' },
-    currency: { type: 'string', enum: ['BGN'] },
+    currency: { type: 'string', enum: [APP_CURRENCY] },
     items: {
       type: 'array',
       items: {

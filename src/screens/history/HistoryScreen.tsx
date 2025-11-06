@@ -43,7 +43,9 @@ export const HistoryScreen = () => {
             <View key={receipt.id} style={styles.listItem}>
               <ReceiptListItem
                 receipt={receipt}
-                onPress={() => router.push({ pathname: `/history/${receipt.id}` })}
+                onPress={() =>
+                  router.push({ pathname: '/history/[id]', params: { id: receipt.id } })
+                }
               />
             </View>
           ))
