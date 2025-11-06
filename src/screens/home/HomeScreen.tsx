@@ -42,7 +42,6 @@ export const HomeScreen = () => {
             setBusy(false);
             return;
           }
-          // TODO: add an optional cropping step before starting the pipeline.
           const result = await ImagePicker.launchCameraAsync({
             quality: 0.7,
             allowsEditing: false,
