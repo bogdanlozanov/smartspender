@@ -120,10 +120,10 @@ export const HomeScreen = () => {
       </View>
 
       <Card padding="lg" style={styles.card}>
-        <Text style={styles.sectionTitle}>This month</Text>
+        <Text style={styles.sectionTitle}>Spending overview</Text>
         <View style={styles.metricsRow}>
           <View>
-            <Text style={styles.metricLabel}>Total spent</Text>
+            <Text style={styles.metricLabel}>This month</Text>
             <Text style={styles.metricValue}>{formatCurrency(monthlySpent)}</Text>
           </View>
           <View>
