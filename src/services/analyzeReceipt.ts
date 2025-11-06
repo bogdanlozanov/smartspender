@@ -2,8 +2,8 @@ import { Buffer } from 'buffer';
 import { File } from 'expo-file-system';
 import { z } from 'zod';
 
-import type { ReceiptAnalysis } from '@/src/types';
 import { APP_CURRENCY } from '@/src/constants/app';
+import type { ReceiptAnalysis } from '@/src/types';
 
 const OPENAI_API_KEY = process.env.EXPO_PUBLIC_OPENAI_API_KEY;
 const DEFAULT_MODEL = process.env.EXPO_PUBLIC_OPENAI_MODEL ?? 'gpt-4o-mini';
@@ -127,7 +127,7 @@ const callOpenAI = async (imageDataUrl: string): Promise<ReceiptData> => {
   }
 
   const payload = (await response.json()) as {
-    choices?: Array<{ message?: { content?: string } }>;
+    choices?: { message?: { content?: string } }[];
   };
 
   const content = payload.choices?.[0]?.message?.content;
@@ -139,7 +139,7 @@ const callOpenAI = async (imageDataUrl: string): Promise<ReceiptData> => {
   try {
     parsed = JSON.parse(content);
   } catch (error) {
-    throw new Error('OpenAI response was not valid JSON.');
+    throw new Error('OpenAI response was not valid JSON.', error ?? "");
   }
 
   return receiptSchema.parse(parsed);

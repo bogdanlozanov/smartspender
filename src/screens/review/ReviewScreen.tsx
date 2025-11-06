@@ -51,6 +51,11 @@ export const ReviewScreen = () => {
     }
   }, [receipt]);
 
+  const modelName = useMemo(() => {
+    const meta = receipt?.providerMeta as { model?: string } | null;
+    return meta?.model ?? 'gpt-4o-mini';
+  }, [receipt?.providerMeta]);
+
   if (!receipt) {
     return (
       <View style={styles.emptyContainer}>
@@ -59,11 +64,6 @@ export const ReviewScreen = () => {
       </View>
     );
   }
-
-  const modelName = useMemo(() => {
-    const meta = receipt.providerMeta as { model?: string } | null;
-    return meta?.model ?? 'gpt-4o-mini';
-  }, [receipt.providerMeta]);
 
   const handleSave = async () => {
     try {
