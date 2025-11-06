@@ -1,7 +1,7 @@
 import { useCallback } from 'react';
 
-import type { ReceiptJob, ReceiptJobError } from '@/src/types';
 import { PIPELINE_STEPS } from '@/src/constants/pipeline';
+import type { ReceiptJob, ReceiptJobError } from '@/src/types';
 import { generateId } from '@/src/utils/id';
 
 import { useReceiptActions } from '@/src/state/useReceiptActions';

@@ -8,6 +8,7 @@ import { Card } from '@/src/components/Card';
 import { ProgressStepper } from '@/src/components/ProgressStepper';
 import { useReceipts } from '@/src/hooks/useReceipts';
 import { colors, spacing, typography } from '@/src/theme';
+import { NeedsReviewCard } from '@/src/components/NeedsReviewCard';
 
 export const ProcessingScreen = () => {
   const { jobId } = useLocalSearchParams<{ jobId: string }>();
@@ -17,6 +18,7 @@ export const ProcessingScreen = () => {
   const job = jobId ? state.jobs[jobId] : undefined;
   const progress = job?.progress ?? [];
   const receiptId = job?.result?.receipt.id;
+  const receipt = job?.result?.receipt;
 
   const header = useMemo(() => {
     switch (job?.status) {
@@ -55,6 +57,10 @@ export const ProcessingScreen = () => {
         <Text style={styles.progressHeading}>Pipeline status</Text>
         <ProgressStepper progress={progress} status={job?.status ?? 'running'} />
       </Card>
+
+      {job?.status === 'completed' && receipt?.status === 'needs_review' && (
+        <NeedsReviewCard receipt={receipt} />
+      )}
 
       <View style={styles.actions}>
         {job?.status === 'completed' && receiptId && (

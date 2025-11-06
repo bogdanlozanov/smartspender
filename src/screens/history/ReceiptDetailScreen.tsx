@@ -5,6 +5,7 @@ import { AppButton } from '@/src/components/AppButton';
 import { Card } from '@/src/components/Card';
 import { ReceiptAnalysisCard } from '@/src/components/ReceiptAnalysisCard';
 import { ReceiptSummaryCard } from '@/src/components/ReceiptSummaryCard';
+import { NeedsReviewCard } from '@/src/components/NeedsReviewCard';
 import { useReceipts } from '@/src/hooks/useReceipts';
 import { useReceiptActions } from '@/src/state/useReceiptActions';
 import { colors, spacing, typography } from '@/src/theme';
@@ -49,6 +50,10 @@ export const ReceiptDetailScreen = () => {
       <Text style={styles.subheading}>Review the scanned totals and captured items.</Text>
 
       <ReceiptSummaryCard receipt={receipt} showImage style={styles.summaryCard} />
+
+      {receipt.status === 'needs_review' && (
+        <NeedsReviewCard receipt={receipt} />
+      )}
 
       <ReceiptAnalysisCard analysis={receipt.analysis} style={styles.card} />
 

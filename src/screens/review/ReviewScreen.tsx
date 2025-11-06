@@ -15,6 +15,7 @@ import {
 import { AppButton } from '@/src/components/AppButton';
 import { Card } from '@/src/components/Card';
 import { ReceiptAnalysisCard } from '@/src/components/ReceiptAnalysisCard';
+import { NeedsReviewCard } from '@/src/components/NeedsReviewCard';
 import { useReceipts } from '@/src/hooks/useReceipts';
 import { useReceiptActions } from '@/src/state/useReceiptActions';
 import { colors, spacing, typography } from '@/src/theme';
@@ -102,6 +103,19 @@ export const ReviewScreen = () => {
     );
   };
 
+  const { mismatch, reported, itemsSum, diff } = useMemo(() => {
+    // Compute mismatch based on current editable values
+    const currentTotal = total ? Number.parseFloat(total.replace(',', '.')) : null;
+    const normalizedTotal = currentTotal != null && Number.isFinite(currentTotal)
+      ? Number(currentTotal.toFixed(2))
+      : null;
+    const itemsTotal = lineItems.reduce((acc, item) => acc + (item.total ?? 0), 0);
+    const normalizedItemsTotal = Number(itemsTotal.toFixed(2));
+    const d = normalizedTotal != null ? Number((normalizedTotal - normalizedItemsTotal).toFixed(2)) : null;
+    const m = d != null ? Math.abs(d) > 0.05 : false;
+    return { mismatch: m, reported: normalizedTotal, itemsSum: normalizedItemsTotal, diff: d };
+  }, [total, lineItems]);
+
   return (
     <KeyboardAvoidingView
       style={{ flex: 1 }}
@@ -117,6 +131,13 @@ export const ReviewScreen = () => {
             Captured {formatDate(receipt.createdAt)} • AI model {modelName}
           </Text>
         </Card>
+
+        {receipt.status === 'needs_review' && mismatch && reported != null && diff != null ? (
+          <NeedsReviewCard
+            style={styles.card}
+            message={`Receipt analysis totals mismatch. Reported: ${reported.toFixed(2)}, items sum: ${itemsSum.toFixed(2)}, diff: ${diff.toFixed(2)}`}
+          />
+        ) : null}
 
         <ReceiptAnalysisCard analysis={receipt.analysis} style={styles.card} />
 
