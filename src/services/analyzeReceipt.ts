@@ -162,9 +162,13 @@ export const analyzeReceipt = async (imageUri: string): Promise<ReceiptAnalysis>
 
   const reconciled = reconcileTotals(normalized);
   const itemsTotal = reconciled.items.reduce((acc, item) => acc + (item.total ?? 0), 0);
-  const mismatch = Math.abs(normalize(reconciled.total - itemsTotal)) > 0.05;
+  const normalizedItemsTotal = normalize(itemsTotal);
+  const difference = normalize(reconciled.total - normalizedItemsTotal);
+  const mismatch = Math.abs(difference) > 0.05;
   if (mismatch) {
-    throw new Error('Totals did not reconcile');
+    console.warn(
+      `Receipt analysis totals mismatch. Reported: ${reconciled.total}, items sum: ${normalizedItemsTotal}, diff: ${difference}`,
+    );
   }
 
   const capturedAt = new Date().toISOString();

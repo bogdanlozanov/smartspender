@@ -1,16 +1,16 @@
+import { Image } from 'expo-image';
+import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useEffect, useMemo, useState } from 'react';
 import {
   Alert,
+  KeyboardAvoidingView,
+  Platform,
   ScrollView,
   StyleSheet,
   Text,
   TextInput,
   View,
-  KeyboardAvoidingView,
-  Platform,
 } from 'react-native';
-import { Image } from 'expo-image';
-import { useLocalSearchParams, useRouter } from 'expo-router';
 
 import { AppButton } from '@/src/components/AppButton';
 import { Card } from '@/src/components/Card';
@@ -18,8 +18,8 @@ import { ReceiptAnalysisCard } from '@/src/components/ReceiptAnalysisCard';
 import { useReceipts } from '@/src/hooks/useReceipts';
 import { useReceiptActions } from '@/src/state/useReceiptActions';
 import { colors, spacing, typography } from '@/src/theme';
-import { formatDate, parseCurrency, toISODate } from '@/src/utils/format';
 import type { LineItem, ReceiptWithItems } from '@/src/types';
+import { formatDate, parseCurrency, toISODate } from '@/src/utils/format';
 
 const toEditableDate = (iso: string | null) => {
   if (!iso) return '';
@@ -109,7 +109,7 @@ export const ReviewScreen = () => {
     >
       <ScrollView contentContainerStyle={styles.container}>
         <Text style={styles.heading}>Review receipt</Text>
-        <Text style={styles.subheading}>Confirm the AI summary and tweak any fields.</Text>
+        <Text style={styles.subheading}>Confirm the AI summary and tweak any details.</Text>
 
         <Card padding="lg" style={styles.card}>
           <Image source={{ uri: receipt.imageUri }} style={styles.image} />

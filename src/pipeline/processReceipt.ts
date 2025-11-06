@@ -7,6 +7,9 @@ import { generateId } from '@/src/utils/id';
 
 import { preprocessImage } from './preprocessImage';
 
+const TOTAL_TOLERANCE = 0.05;
+const normalizeTotal = (value: number) => Number(value.toFixed(2));
+
 interface ProcessReceiptParams {
   imageUri: string;
   deleteOriginal?: boolean;
@@ -85,18 +88,23 @@ export const processReceipt = async ({
 
     const items = lineItems;
     const itemsTotal = items.reduce((acc, item) => acc + (item.total ?? 0), 0);
-    const total = analysis.total ?? itemsTotal;
+    const normalizedItemsTotal = normalizeTotal(itemsTotal);
+    const resolvedTotal = normalizeTotal(analysis.total ?? normalizedItemsTotal);
     const parsedDate = analysis.date ? new Date(analysis.date) : null;
     const receiptDate = parsedDate && Number.isFinite(parsedDate.getTime()) ? parsedDate.toISOString() : null;
     const warnings: string[] = [];
     if (!items.length) {
       warnings.push('AI could not identify line items.');
     }
+    if (Math.abs(resolvedTotal - normalizedItemsTotal) > TOTAL_TOLERANCE) {
+      warnings.push('Receipt total differs from the sum of detected items. Please review.');
+    }
     const status: ReceiptStatus = warnings.length ? 'needs_review' : 'done';
 
     const normalizedAnalysis: ReceiptAnalysis = {
       ...analysis,
       date: receiptDate ?? analysis.date,
+      total: resolvedTotal,
     };
 
     const base = createReceiptSkeleton(jobId, savedImageUri);
@@ -104,7 +112,7 @@ export const processReceipt = async ({
       ...base,
       merchant: analysis.merchantName ?? null,
       receiptDate,
-      total,
+      total: resolvedTotal,
       status,
       lineItems: items,
       providerMeta: {

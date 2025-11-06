@@ -30,7 +30,7 @@ export const ProcessingScreen = () => {
   const description = useMemo(() => {
     switch (job?.status) {
       case 'completed':
-        return 'Review the extracted details to make sure everything looks correct.';
+        return 'Edit the extracted details to make sure everything looks correct.';
       case 'failed':
         return job?.error?.message ?? 'Something went wrong while processing this receipt.';
       default:
@@ -57,7 +57,7 @@ export const ProcessingScreen = () => {
         {job?.status === 'completed' && job.result && (
           <View style={styles.actionItem}>
             <AppButton
-              label="Review receipt"
+              label="Edit receipt"
               onPress={() =>
                 router.replace({
                   pathname: '/review/[id]',
