@@ -1,4 +1,4 @@
-import { StyleSheet, Text, View } from 'react-native';
+import { StyleSheet, Text, View, type StyleProp, type ViewStyle } from 'react-native';
 
 import type { ReceiptAnalysis } from '@/src/types';
 import { Card } from '@/src/components/Card';
@@ -7,18 +7,19 @@ import { formatCurrency, formatDate } from '@/src/utils/format';
 
 interface Props {
   analysis: ReceiptAnalysis | null | undefined;
+  style?: StyleProp<ViewStyle>;
 }
 
 /**
  * Presents the raw AI analysis so the user can quickly verify what was extracted.
  */
-export const ReceiptAnalysisCard = ({ analysis }: Props) => {
+export const ReceiptAnalysisCard = ({ analysis, style }: Props) => {
   if (!analysis) {
     return null;
   }
 
   return (
-    <Card padding="lg" style={styles.card}>
+    <Card padding="lg" style={[styles.card, style]}>
       <Text style={styles.heading}>AI summary</Text>
       {analysis.model && <Text style={styles.model}>Model · {analysis.model}</Text>}
       <View style={styles.row}>
@@ -37,7 +38,7 @@ export const ReceiptAnalysisCard = ({ analysis }: Props) => {
       </View>
 
       <View style={styles.listHeader}>
-        <Text style={[styles.label, styles.itemsLabel]}>Items</Text>
+        <Text style={[styles.label, styles.itemsLabel]}>Detected items</Text>
       </View>
       {analysis.items.length === 0 ? (
         <Text style={styles.empty}>No line items detected.</Text>
@@ -59,17 +60,6 @@ export const ReceiptAnalysisCard = ({ analysis }: Props) => {
             <Text style={styles.itemTotal}>{formatCurrency(item.total, analysis.currency)}</Text>
           </View>
         ))
-      )}
-
-      {analysis.subtotal !== undefined && (
-        <View style={styles.summarySection}>
-          <View style={styles.summaryRow}>
-            <Text style={styles.summaryLabel}>Subtotal</Text>
-            <Text style={styles.summaryValue}>
-              {formatCurrency(analysis.subtotal, analysis.currency)}
-            </Text>
-          </View>
-        </View>
       )}
 
       <View style={[styles.summaryRow, styles.summaryFooter]}>
@@ -152,13 +142,6 @@ const styles = StyleSheet.create({
     color: colors.text,
     fontWeight: '700',
   },
-  summarySection: {
-    borderTopWidth: StyleSheet.hairlineWidth,
-    borderTopColor: colors.border,
-    paddingTop: spacing.md,
-    marginTop: spacing.lg,
-    gap: spacing.sm,
-  },
   summaryRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
@@ -169,10 +152,6 @@ const styles = StyleSheet.create({
     fontSize: typography.caption,
     textTransform: 'uppercase',
     letterSpacing: 0.8,
-  },
-  summaryValue: {
-    color: colors.text,
-    fontWeight: '600',
   },
   summaryFooter: {
     marginTop: spacing.md,

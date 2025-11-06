@@ -37,8 +37,6 @@ export const ReviewScreen = () => {
 
   const [merchant, setMerchant] = useState(receipt?.merchant ?? '');
   const [date, setDate] = useState(toEditableDate(receipt?.receiptDate ?? null));
-  const [subtotal, setSubtotal] = useState(receipt?.subtotal ? String(receipt.subtotal) : '');
-  const [tax, setTax] = useState(receipt?.tax ? String(receipt.tax) : '');
   const [total, setTotal] = useState(receipt?.total ? String(receipt.total) : '');
   const [lineItems, setLineItems] = useState<LineItem[]>(
     receipt?.lineItems.map((item) => ({ ...item })) ?? [],
@@ -48,8 +46,6 @@ export const ReviewScreen = () => {
     if (receipt) {
       setMerchant(receipt.merchant ?? '');
       setDate(toEditableDate(receipt.receiptDate));
-      setSubtotal(receipt.subtotal ? receipt.subtotal.toString() : '');
-      setTax(receipt.tax ? receipt.tax.toString() : '');
       setTotal(receipt.total ? receipt.total.toString() : '');
       setLineItems(receipt.lineItems.map((item) => ({ ...item })));
     }
@@ -76,8 +72,6 @@ export const ReviewScreen = () => {
         ...receipt,
         merchant: merchant.trim() || null,
         receiptDate: toISODate(date) ?? receipt.receiptDate,
-        subtotal: parseCurrency(subtotal),
-        tax: parseCurrency(tax),
         total: parseCurrency(total) ?? receipt.total,
         status: 'done',
         updatedAt: new Date().toISOString(),
@@ -114,16 +108,19 @@ export const ReviewScreen = () => {
       behavior={Platform.OS === 'ios' ? 'padding' : undefined}
     >
       <ScrollView contentContainerStyle={styles.container}>
-        <Card padding="lg">
+        <Text style={styles.heading}>Review receipt</Text>
+        <Text style={styles.subheading}>Confirm the AI summary and tweak any fields.</Text>
+
+        <Card padding="lg" style={styles.card}>
           <Image source={{ uri: receipt.imageUri }} style={styles.image} />
           <Text style={styles.caption}>
             Captured {formatDate(receipt.createdAt)} • AI model {modelName}
           </Text>
         </Card>
 
-        <ReceiptAnalysisCard analysis={receipt.analysis} />
+        <ReceiptAnalysisCard analysis={receipt.analysis} style={styles.card} />
 
-        <Card padding="lg">
+        <Card padding="lg" style={styles.card}>
           <Text style={styles.sectionTitle}>Receipt details</Text>
           <View style={styles.field}>
             <Text style={styles.label}>Merchant</Text>
@@ -147,39 +144,19 @@ export const ReviewScreen = () => {
             />
           </View>
 
-          <View style={styles.row}>
-            <View style={[styles.rowField, styles.rowFieldSpacing]}>
-              <Text style={styles.label}>Subtotal</Text>
-              <TextInput
-                style={styles.input}
-                keyboardType="decimal-pad"
-                value={subtotal}
-                onChangeText={setSubtotal}
-              />
-            </View>
-            <View style={[styles.rowField, styles.rowFieldSpacing]}>
-              <Text style={styles.label}>Tax</Text>
-              <TextInput
-                style={styles.input}
-                keyboardType="decimal-pad"
-                value={tax}
-                onChangeText={setTax}
-              />
-            </View>
-            <View style={styles.rowField}>
-              <Text style={styles.label}>Total</Text>
-              <TextInput
-                style={styles.input}
-                keyboardType="decimal-pad"
-                value={total}
-                onChangeText={setTotal}
-              />
-            </View>
+          <View style={styles.field}>
+            <Text style={styles.label}>Total</Text>
+            <TextInput
+              style={styles.input}
+              keyboardType="decimal-pad"
+              value={total}
+              onChangeText={setTotal}
+            />
           </View>
         </Card>
 
-        <Card padding="lg">
-          <Text style={styles.sectionTitle}>Line items</Text>
+        <Card padding="lg" style={styles.card}>
+          <Text style={styles.sectionTitle}>Receipt items</Text>
           {lineItems.length === 0 ? (
             <Text style={styles.emptyText}>No items detected.</Text>
           ) : (
@@ -240,7 +217,7 @@ export const ReviewScreen = () => {
             <AppButton label="Save changes" onPress={handleSave} disabled={saving} />
           </View>
           <View style={styles.actionItem}>
-            <AppButton label="Back" onPress={() => router.back()} variant="secondary" />
+            <AppButton label="Back to receipt" onPress={() => router.back()} variant="secondary" />
           </View>
         </View>
       </ScrollView>
@@ -252,6 +229,19 @@ const styles = StyleSheet.create({
   container: {
     padding: spacing.xl,
     paddingBottom: spacing.xxl * 2,
+  },
+  heading: {
+    fontSize: typography.heading,
+    fontWeight: '700',
+    color: colors.text,
+  },
+  subheading: {
+    color: colors.textMuted,
+    marginTop: spacing.xs,
+    marginBottom: spacing.lg,
+  },
+  card: {
+    marginBottom: spacing.xl,
   },
   image: {
     width: '100%',
@@ -284,17 +274,6 @@ const styles = StyleSheet.create({
     paddingVertical: spacing.md,
     borderWidth: 1,
     borderColor: colors.border,
-  },
-  row: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-  },
-  rowField: {
-    flex: 1,
-    marginBottom: spacing.xl,
-  },
-  rowFieldSpacing: {
-    marginRight: spacing.md,
   },
   emptyContainer: {
     flex: 1,

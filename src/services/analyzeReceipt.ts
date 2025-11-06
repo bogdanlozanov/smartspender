@@ -15,7 +15,6 @@ Rules:
 - Include ALL items, including weighed items (e.g., 0.412 kg x 19.00) and multi-qty lines (e.g., 4 x 0.99).
   - If a price looks like "59" in item context and all other prices have two decimals, interpret it as "0.59" ONLY if that helps reconcile totals.
   - Ensure sum(items.total) equals the printed total within 0.02. If mismatch, reconcile using the printed total.
-  - Populate optional "subtotal" when present on the receipt.
   - Output only JSON, no extra text.`;
 
 const unitSchema = z.enum(['x', 'kg', 'g', 'l', 'ml', 'other']);
@@ -32,7 +31,6 @@ const receiptSchema = z.object({
   merchantName: z.string().min(1),
   currency: z.literal(APP_CURRENCY),
   items: z.array(itemSchema).min(1),
-  subtotal: z.number().optional(),
   total: z.number().nonnegative(),
 });
 
@@ -60,7 +58,6 @@ const receiptJsonSchema = {
         },
       },
     },
-    subtotal: { type: 'number' },
     total: { type: 'number' },
   },
 };
@@ -155,7 +152,6 @@ export const analyzeReceipt = async (imageUri: string): Promise<ReceiptAnalysis>
 
   const normalized: ReceiptData = {
     ...raw,
-    subtotal: raw.subtotal !== undefined ? normalize(raw.subtotal) : raw.subtotal,
     total: normalize(raw.total),
     items: raw.items.map((item) => ({
       ...item,
@@ -178,7 +174,6 @@ export const analyzeReceipt = async (imageUri: string): Promise<ReceiptAnalysis>
     date: capturedAt,
     currency: reconciled.currency,
     items: reconciled.items,
-    subtotal: reconciled.subtotal,
     total: reconciled.total,
     model: DEFAULT_MODEL,
   };

@@ -15,7 +15,6 @@ export interface ReceiptAnalysis {
   date: string;
   currency: CurrencyCode;
   items: ReceiptAnalysisItem[];
-  subtotal?: number;
   total: number;
   model?: string;
 }
@@ -35,8 +34,6 @@ export interface Receipt {
   status: ReceiptStatus;
   merchant: string | null;
   receiptDate: string | null;
-  subtotal: number | null;
-  tax: number | null;
   total: number | null;
   currency: CurrencyCode;
   imageUri: string;

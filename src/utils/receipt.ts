@@ -8,8 +8,7 @@ export const updateReceiptTotals = (receipt: Receipt, items: LineItem[]): Receip
 
   return {
     ...receipt,
-    subtotal: receipt.subtotal ?? itemsTotal,
-    total: receipt.total ?? Math.max(itemsTotal, receipt.total ?? itemsTotal),
+    total: receipt.total ?? itemsTotal,
   };
 };
 

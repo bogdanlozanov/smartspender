@@ -30,8 +30,6 @@ const createReceiptSkeleton = (id: string, imageUri: string): ReceiptWithItems =
     status: 'processing',
     merchant: null,
     receiptDate: null,
-    subtotal: null,
-    tax: null,
     total: null,
     currency: APP_CURRENCY,
     imageUri,
@@ -86,8 +84,8 @@ export const processReceipt = async ({
     emitProgress('categorize', onProgress);
 
     const items = lineItems;
-    const subtotal = analysis.subtotal ?? items.reduce((acc, item) => acc + (item.total ?? 0), 0);
-    const total = analysis.total ?? subtotal;
+    const itemsTotal = items.reduce((acc, item) => acc + (item.total ?? 0), 0);
+    const total = analysis.total ?? itemsTotal;
     const parsedDate = analysis.date ? new Date(analysis.date) : null;
     const receiptDate = parsedDate && Number.isFinite(parsedDate.getTime()) ? parsedDate.toISOString() : null;
     const warnings: string[] = [];
@@ -106,8 +104,6 @@ export const processReceipt = async ({
       ...base,
       merchant: analysis.merchantName ?? null,
       receiptDate,
-      subtotal,
-      tax: null,
       total,
       status,
       lineItems: items,

@@ -1,15 +1,14 @@
 import { Alert, ScrollView, StyleSheet, Text, View } from 'react-native';
-import { Image } from 'expo-image';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 
 import { AppButton } from '@/src/components/AppButton';
 import { Card } from '@/src/components/Card';
 import { ReceiptAnalysisCard } from '@/src/components/ReceiptAnalysisCard';
-import { StatusBadge } from '@/src/components/StatusBadge';
+import { ReceiptSummaryCard } from '@/src/components/ReceiptSummaryCard';
 import { useReceipts } from '@/src/hooks/useReceipts';
 import { useReceiptActions } from '@/src/state/useReceiptActions';
 import { colors, spacing, typography } from '@/src/theme';
-import { formatCurrency, formatDate } from '@/src/utils/format';
+import { formatCurrency } from '@/src/utils/format';
 import { deleteImage } from '@/src/storage';
 
 export const ReceiptDetailScreen = () => {
@@ -46,22 +45,15 @@ export const ReceiptDetailScreen = () => {
 
   return (
     <ScrollView contentContainerStyle={styles.container}>
-      <Card padding="lg">
-        <Image source={{ uri: receipt.imageUri }} style={styles.image} />
-        <View style={styles.header}>
-          <View>
-            <Text style={styles.merchant}>{receipt.merchant ?? 'Unknown merchant'}</Text>
-            <Text style={styles.date}>{formatDate(receipt.receiptDate)}</Text>
-          </View>
-          <StatusBadge status={receipt.status} />
-        </View>
-        <Text style={styles.total}>{formatCurrency(receipt.total)}</Text>
-      </Card>
+      <Text style={styles.heading}>Receipt overview</Text>
+      <Text style={styles.subheading}>Review the scanned totals and captured items.</Text>
 
-      <ReceiptAnalysisCard analysis={receipt.analysis} />
+      <ReceiptSummaryCard receipt={receipt} showImage style={styles.summaryCard} />
 
-      <Card padding="lg">
-        <Text style={styles.sectionTitle}>Items</Text>
+      <ReceiptAnalysisCard analysis={receipt.analysis} style={styles.card} />
+
+      <Card padding="lg" style={styles.card}>
+        <Text style={styles.sectionTitle}>Receipt items</Text>
         {receipt.lineItems.length === 0 ? (
           <Text style={styles.emptyText}>No items captured.</Text>
         ) : (
@@ -83,14 +75,10 @@ export const ReceiptDetailScreen = () => {
         )}
       </Card>
 
-      <Card padding="lg">
-        <Text style={styles.sectionTitle}>Summary</Text>
-        <View style={styles.summaryRow}>
-          <Text style={styles.summaryLabel}>Subtotal</Text>
-          <Text style={styles.summaryValue}>{formatCurrency(receipt.subtotal)}</Text>
-        </View>
-        <View style={styles.summaryRow}>
-          <Text style={styles.summaryLabel}>Total</Text>
+      <Card padding="lg" style={styles.card}>
+        <Text style={styles.sectionTitle}>Receipt total</Text>
+        <View style={[styles.summaryRow, styles.summaryFooter]}>
+          <Text style={styles.summaryLabel}>Amount</Text>
           <Text style={styles.summaryValue}>{formatCurrency(receipt.total)}</Text>
         </View>
       </Card>
@@ -115,30 +103,21 @@ const styles = StyleSheet.create({
     padding: spacing.xl,
     paddingBottom: spacing.xxl * 2,
   },
-  image: {
-    width: '100%',
-    height: 220,
-    borderRadius: spacing.md,
-    marginBottom: spacing.lg,
-  },
-  header: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginBottom: spacing.md,
-  },
-  merchant: {
-    fontSize: typography.subheading,
+  heading: {
+    fontSize: typography.heading,
     fontWeight: '700',
     color: colors.text,
   },
-  date: {
+  subheading: {
     color: colors.textMuted,
+    marginTop: spacing.xs,
+    marginBottom: spacing.lg,
   },
-  total: {
-    fontSize: 28,
-    fontWeight: '700',
-    color: colors.primary,
+  summaryCard: {
+    marginBottom: spacing.xl,
+  },
+  card: {
+    marginTop: spacing.xl,
   },
   sectionTitle: {
     fontSize: typography.subheading,
@@ -189,6 +168,11 @@ const styles = StyleSheet.create({
   summaryValue: {
     color: colors.text,
     fontWeight: '600',
+  },
+  summaryFooter: {
+    paddingTop: spacing.sm,
+    borderTopWidth: StyleSheet.hairlineWidth,
+    borderTopColor: colors.border,
   },
   actions: {
     marginTop: spacing.xl,
