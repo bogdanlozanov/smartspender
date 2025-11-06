@@ -1,7 +1,7 @@
-import { useState, useCallback } from 'react';
-import { ActivityIndicator, Alert, ScrollView, StyleSheet, Text, View } from 'react-native';
 import * as ImagePicker from 'expo-image-picker';
 import { useRouter } from 'expo-router';
+import { useCallback, useState } from 'react';
+import { ActivityIndicator, Alert, ScrollView, StyleSheet, Text, View } from 'react-native';
 
 import { AppButton } from '@/src/components/AppButton';
 import { Card } from '@/src/components/Card';
@@ -174,6 +174,7 @@ const styles = StyleSheet.create({
     fontSize: typography.body,
     color: colors.textMuted,
     lineHeight: 22,
+    marginBottom: spacing.md
   },
   error: {
     backgroundColor: colors.danger,
