@@ -1,50 +1,48 @@
-# Welcome to your Expo app 👋
+# SmartSpender (MVP)
 
-This is an [Expo](https://expo.dev) project created with [`create-expo-app`](https://www.npmjs.com/package/create-expo-app).
+SmartSpender is a mobile-first receipt scanner built with Expo + React Native. Capture or import receipt photos, analyse them with OpenAI GPT-4o, auto-categorise items, and keep expenses on the device. Everything is processed client-side apart from the single OpenAI request.
 
-## Get started
+## Features
 
-1. Install dependencies
+- Capture receipts with the camera or import from the gallery.
+- Async processing pipeline with progress feedback.
+- OpenAI GPT-4o Mini analysis for merchant, totals, and line items.
+- Extract merchant, date, totals, line items, and guess categories.
+- Review & edit receipts, view history, delete unwanted entries.
+- All data (metadata + images) stored locally with `AsyncStorage` and `expo-file-system`.
+
+## Quick Start
+
+1. **Install dependencies**
 
    ```bash
    npm install
    ```
 
-2. Start the app
+2. **Configure environment variables**
+
+Add your OpenAI key (with GPT-4o access) to your `.env` or shell before starting Expo:
+
+```bash
+export EXPO_PUBLIC_OPENAI_API_KEY=sk-...
+export EXPO_PUBLIC_OPENAI_MODEL=gpt-4o-mini # Optional override (defaults to gpt-4o-mini)
+```
+
+3. **Run the app**
 
    ```bash
    npx expo start
    ```
 
-In the output, you'll find options to open the app in a
+  Open the development server with Expo Go (works because the OpenAI call runs from the client) or run a development build/simulator. Camera and media-library permissions will be requested at runtime.
 
-- [development build](https://docs.expo.dev/develop/development-builds/introduction/)
-- [Android emulator](https://docs.expo.dev/workflow/android-studio-emulator/)
-- [iOS simulator](https://docs.expo.dev/workflow/ios-simulator/)
-- [Expo Go](https://expo.dev/go), a limited sandbox for trying out app development with Expo
+## Project Structure
 
-You can start developing by editing the files inside the **app** directory. This project uses [file-based routing](https://docs.expo.dev/router/introduction).
-
-## Get a fresh project
-
-When you're ready, run:
-
-```bash
-npm run reset-project
-```
-
-This command will move the starter code to the **app-example** directory and create a blank **app** directory where you can start developing.
-
-## Learn more
-
-To learn more about developing your project with Expo, look at the following resources:
-
-- [Expo documentation](https://docs.expo.dev/): Learn fundamentals, or go into advanced topics with our [guides](https://docs.expo.dev/guides).
-- [Learn Expo tutorial](https://docs.expo.dev/tutorial/introduction/): Follow a step-by-step tutorial where you'll create a project that runs on Android, iOS, and the web.
-
-## Join the community
-
-Join our community of developers creating universal apps.
-
-- [Expo on GitHub](https://github.com/expo/expo): View our open source platform and contribute.
-- [Discord community](https://chat.expo.dev): Chat with Expo users and ask questions.
+- `app/` — Expo Router screens.
+- `src/constants/` — currencies, categories, pipeline steps.
+- `src/state/` — reducer, context provider, and actions for receipts and jobs.
+- `src/services/` — OpenAI receipt analysis and categorisation.
+- `src/pipeline/` — orchestrates preprocessing, AI analysis, and persistence.
+- `src/storage/` — AsyncStorage + FileSystem helpers for receipts and images.
+- `src/screens/` — UI modules for home, processing, review, history, export.
+- `src/components/` — Reusable UI pieces (buttons, cards, progress indicator, etc.).
